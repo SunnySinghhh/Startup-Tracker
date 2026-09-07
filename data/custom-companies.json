@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Anthropic",
+    "one_liner": "AI safety and research company building Claude",
+    "website": "https://anthropic.com",
+    "sector": "B2B",
+    "sub_sector": "Infrastructure",
+    "tags": ["AI", "Machine Learning", "Generative AI"],
+    "hq_location": "San Francisco, CA, USA",
+    "founded_date": "2021-01-01",
+    "status": "Active",
+    "stage": "Growth",
+    "github_org": "anthropics",
+    "notes": "Not a YC company — added manually to show the custom-company path."
+  },
+  {
+    "name": "Linear",
+    "one_liner": "Issue tracking and project planning for software teams",
+    "website": "https://linear.app",
+    "sector": "B2B",
+    "sub_sector": "Engineering, Product and Design",
+    "tags": ["SaaS", "Productivity", "Developer Tools"],
+    "hq_location": "San Francisco, CA, USA",
+    "founded_date": "2019-01-01",
+    "status": "Active",
+    "stage": "Growth",
+    "github_org": "linear"
+  },
+  {
+    "name": "Vercel",
+    "one_liner": "Frontend cloud platform for deploying web applications",
+    "website": "https://vercel.com",
+    "sector": "B2B",
+    "sub_sector": "Infrastructure",
+    "tags": ["Developer Tools", "Cloud Computing", "Infrastructure"],
+    "hq_location": "San Francisco, CA, USA",
+    "founded_date": "2015-01-01",
+    "status": "Active",
+    "stage": "Growth",
+    "github_org": "vercel"
+  },
+  {
+    "name": "Figma",
+    "one_liner": "Collaborative interface design tool",
+    "website": "https://figma.com",
+    "sector": "B2B",
+    "sub_sector": "Engineering, Product and Design",
+    "tags": ["Design", "SaaS", "Collaboration"],
+    "hq_location": "San Francisco, CA, USA",
+    "founded_date": "2012-01-01",
+    "status": "Public",
+    "stage": "Growth",
+    "github_org": "figma"
+  },
+  {
+    "name": "Databricks",
+    "one_liner": "Unified analytics platform for data and AI",
+    "website": "https://databricks.com",
+    "sector": "B2B",
+    "sub_sector": "Analytics",
+    "tags": ["Big Data", "Analytics", "Machine Learning"],
+    "hq_location": "San Francisco, CA, USA",
+    "founded_date": "2013-01-01",
+    "status": "Active",
+    "stage": "Growth",
+    "github_org": "databricks"
+  }
+]

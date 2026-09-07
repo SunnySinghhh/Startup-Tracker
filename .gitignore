@@ -1,0 +1,24 @@
+# Derived artifacts — rebuilt from data/ on demand
+*.db
+*.db-journal
+*.db-wal
+build/tracker.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node
+node_modules/
+web/dist/
+web/public/data/
+*.tsbuildinfo
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

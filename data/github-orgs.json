@@ -1,0 +1,6 @@
+{
+  "_comment": "Map a company id to its GitHub organisation to enable GitHub activity signals. Orgs are never guessed from company names — too many unrelated orgs collide. Add entries as \"yc:slug\": \"org-name\".",
+  "yc:posthog": "PostHog",
+  "yc:supabase": "supabase",
+  "yc:airbyte": "airbytehq"
+}

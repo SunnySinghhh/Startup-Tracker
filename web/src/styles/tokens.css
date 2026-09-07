@@ -1,0 +1,198 @@
+/* ============================================================================
+   Design tokens
+   ----------------------------------------------------------------------------
+   Dark-first. Every colour is defined once on :root (the light palette), then
+   redefined under BOTH a prefers-color-scheme block and a [data-theme] block so
+   an explicit toggle wins over the OS setting in either direction.
+
+   The series-* slots are the validated data-viz palette. They were checked with
+   the palette validator against these exact surfaces, not assumed to carry over
+   from the reference surface — see docs/DESIGN.md.
+   ========================================================================= */
+
+:root {
+  /* ---- Neutral scale (light) ------------------------------------------- */
+  --bg:            #fbfbfa;
+  --surface-1:     #ffffff;
+  --surface-2:     #f5f5f4;
+  --surface-3:     #ebebe9;
+  --border:        #e2e2df;
+  --border-strong: #cfcfcb;
+
+  --text-primary:   #18181b;
+  --text-secondary: #52525b;
+  --text-muted:     #8b8b93;
+  --text-faint:     #b4b4bb;
+
+  /* ---- Accent ----------------------------------------------------------- */
+  --accent:         #2a78d6;
+  --accent-hover:   #1c5cab;
+  --accent-subtle:  #eaf2fd;
+  --accent-border:  #b7d3f6;
+  --on-accent:      #ffffff;
+
+  /* ---- Data-viz series (validated, light) ------------------------------- */
+  --series-1: #2a78d6;  /* blue    — headcount growth */
+  --series-2: #eb6834;  /* orange  — press            */
+  --series-3: #1baf7a;  /* aqua    — hiring           */
+  --series-4: #eda100;  /* yellow  — funding recency  */
+  --series-5: #e87ba4;  /* magenta — github           */
+
+  /* ---- Sequential ramp (blue, light→dark) ------------------------------- */
+  --seq-100: #cde2fb;
+  --seq-250: #86b6ef;
+  --seq-400: #3987e5;
+  --seq-550: #1c5cab;
+  --seq-700: #0d366b;
+
+  /* ---- Status ----------------------------------------------------------- */
+  --good:     #008300;
+  --warning:  #eda100;
+  --critical: #e34948;
+  --good-subtle:     #e7f4e7;
+  --critical-subtle: #fdecec;
+
+  /* ---- Typography -------------------------------------------------------- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono',
+               Menlo, Consolas, monospace;
+
+  --text-2xs: 0.6875rem;  /* 11px — table meta, chips        */
+  --text-xs:  0.75rem;    /* 12px — labels, secondary        */
+  --text-sm:  0.8125rem;  /* 13px — body, table cells        */
+  --text-md:  0.875rem;   /* 14px — default UI               */
+  --text-lg:  1rem;       /* 16px — section headings         */
+  --text-xl:  1.375rem;   /* 22px — panel titles             */
+  --text-2xl: 1.75rem;    /* 28px — page title               */
+  --text-3xl: 2.5rem;     /* 40px — hero numbers             */
+
+  --leading-tight: 1.2;
+  --leading-snug:  1.4;
+  --leading-normal: 1.55;
+
+  --tracking-tight: -0.02em;
+  --tracking-snug:  -0.011em;
+  --tracking-wide:  0.04em;
+
+  /* ---- Space (4px base) --------------------------------------------------- */
+  --space-1: 0.25rem;  --space-2: 0.5rem;   --space-3: 0.75rem;
+  --space-4: 1rem;     --space-5: 1.25rem;  --space-6: 1.5rem;
+  --space-8: 2rem;     --space-10: 2.5rem;  --space-12: 3rem;
+
+  /* ---- Radius / elevation ------------------------------------------------ */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-md: 0 2px 8px rgb(0 0 0 / 0.07), 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.06);
+
+  /* ---- Motion ------------------------------------------------------------ */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-fast: 120ms;
+  --dur-mid:  180ms;
+  --dur-slow: 280ms;
+
+  /* ---- Layout ------------------------------------------------------------ */
+  --rail-width: 244px;
+  --header-height: 56px;
+  --row-height: 46px;
+
+  color-scheme: light;
+}
+
+/* ---- Dark: OS preference (loses to an explicit light stamp) -------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg:            #0b0b0d;
+    --surface-1:     #131316;
+    --surface-2:     #1a1a1e;
+    --surface-3:     #232329;
+    --border:        #26262c;
+    --border-strong: #3a3a43;
+
+    --text-primary:   #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted:     #71717a;
+    --text-faint:     #52525b;
+
+    --accent:        #3987e5;
+    --accent-hover:  #5598e7;
+    --accent-subtle: #13233a;
+    --accent-border: #1c3f68;
+    --on-accent:     #ffffff;
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+
+    --seq-100: #0d366b;
+    --seq-250: #184f95;
+    --seq-400: #256abf;
+    --seq-550: #3987e5;
+    --seq-700: #86b6ef;
+
+    --good:     #4ba84b;
+    --warning:  #c98500;
+    --critical: #e66767;
+    --good-subtle:     #12240f;
+    --critical-subtle: #2b1414;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 2px 8px rgb(0 0 0 / 0.45), 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.4);
+
+    color-scheme: dark;
+  }
+}
+
+/* ---- Dark: explicit toggle (wins over OS in both directions) ------------- */
+:root[data-theme='dark'] {
+  --bg:            #0b0b0d;
+  --surface-1:     #131316;
+  --surface-2:     #1a1a1e;
+  --surface-3:     #232329;
+  --border:        #26262c;
+  --border-strong: #3a3a43;
+
+  --text-primary:   #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted:     #71717a;
+  --text-faint:     #52525b;
+
+  --accent:        #3987e5;
+  --accent-hover:  #5598e7;
+  --accent-subtle: #13233a;
+  --accent-border: #1c3f68;
+  --on-accent:     #ffffff;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+
+  --seq-100: #0d366b;
+  --seq-250: #184f95;
+  --seq-400: #256abf;
+  --seq-550: #3987e5;
+  --seq-700: #86b6ef;
+
+  --good:     #4ba84b;
+  --warning:  #c98500;
+  --critical: #e66767;
+  --good-subtle:     #12240f;
+  --critical-subtle: #2b1414;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 2px 8px rgb(0 0 0 / 0.45), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.4);
+
+  color-scheme: dark;
+}

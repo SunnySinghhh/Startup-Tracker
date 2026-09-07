@@ -1,0 +1,4 @@
+{
+  "_comment": "Pin a company to its SEC CIK when strict name matching misses it. EDGAR entity names often differ from trading names (e.g. Rippling files as 'Rippling People Center Inc.'), and matching loosely enough to catch those also catches syndicate SPVs and unrelated companies. Find a CIK at https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany then add it here as \"company_id\": \"CIK\".",
+  "overrides": {}
+}
