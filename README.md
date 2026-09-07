@@ -8,7 +8,7 @@ It runs entirely on free public data, costs nothing to operate, and deploys to
 GitHub Pages. A scheduled GitHub Action appends one observation per company per
 day, so the history it reasons over accumulates on its own.
 
-**Live dashboard:** _(add your Pages URL here after the first deploy)_
+**Live dashboard:** <https://sunnysinghhh.github.io/Startup-Tracker/>
 
 ---
 
@@ -123,7 +123,10 @@ npm run dev
 ## Deploying to GitHub Pages
 
 1. Push to GitHub (public repo, or private with Pages enabled).
-2. **Settings → Pages → Source: GitHub Actions.**
+2. **Settings → Pages → Build and deployment → Source: `GitHub Actions`.**
+   If this is left as "Deploy from a branch", GitHub runs its built-in Jekyll
+   job and serves a rendered README instead of the dashboard, and the
+   `deploy-pages` step of the deploy workflow fails.
 3. **Settings → Secrets and variables → Actions → Variables →** add
    `TRACKER_CONTACT_EMAIL` with your email. SEC blocks requests without it.
 4. Push to `main`, or run the **Deploy dashboard** workflow manually.
