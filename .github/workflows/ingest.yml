@@ -13,7 +13,7 @@ on:
       edgar_limit:
         description: 'Companies to check against SEC EDGAR'
         required: false
-        default: '60'
+        default: '400'
       github_limit:
         description: 'GitHub orgs to enrich'
         required: false
@@ -52,7 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python -m tracker.cli ingest \
-            --edgar --edgar-limit "${{ inputs.edgar_limit || 60 }}" \
+            --edgar --edgar-limit "${{ inputs.edgar_limit || 400 }}" \
             --github --github-limit "${{ inputs.github_limit || 60 }}"
 
       - name: Commit new observations

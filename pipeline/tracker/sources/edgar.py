@@ -27,6 +27,7 @@ SEC asks for a descriptive User-Agent with contact details and no more than
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import re
 from datetime import date
@@ -319,6 +320,7 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
     overrides = _load_overrides()
     existing = {r["id"] for r in store.read_jsonl(paths.FUNDING)}
     new_rounds: list[dict[str, Any]] = []
+    pending: list[dict[str, Any]] = []
     matched_companies = 0
 
     with http.client() as client:
@@ -389,13 +391,17 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
             # Stage labels depend on the whole set, so assign once per company.
             _assign_stages(company_rounds)
             new_rounds.extend(company_rounds)
+            pending.extend(company_rounds)
 
-    if new_rounds:
-        with paths.FUNDING.open("a", encoding="utf-8") as fh:
-            import json
+            # Flush periodically. A full backfill is thousands of requests over
+            # half an hour; holding every result in memory until the end means
+            # one failure discards all of it.
+            if len(pending) >= 40:
+                _append_rounds(pending)
+                pending.clear()
 
-            for row in new_rounds:
-                fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    if pending:
+        _append_rounds(pending)
 
     log.info(
         "EDGAR: checked %d companies, matched %d, added %d filings",
@@ -408,22 +414,63 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
     }
 
 
-def _select_targets(companies: list[dict[str, Any]], limit: int, today: date) -> list[str]:
-    """Watchlist and custom companies first, then a rotating slice."""
-    watchlist = set(store.read_json(paths.WATCHLIST, default=[]) or [])
+def _append_rounds(rows: list[dict[str, Any]]) -> None:
+    """Append filings to the store, one JSON object per line."""
+    with paths.FUNDING.open("a", encoding="utf-8") as fh:
+        for row in rows:
+            fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
 
-    priority = [
+
+def _select_targets(companies: list[dict[str, Any]], limit: int, today: date) -> list[str]:
+    """Split the request budget between re-checking known filers and discovery.
+
+    A pure rotation is too slow once the universe is a few thousand companies:
+    at 60 checks a day a new filing from a company we already track could sit
+    unnoticed for months. But letting known filers consume the whole budget is
+    just as bad — discovery would stop entirely once enough of them accumulate.
+
+    So the budget is split. Watchlist and manually added companies are always
+    checked; the rest of the "refresh" share rotates through known filers, and
+    a reserved share rotates through everything else so new companies keep
+    being found.
+    """
+    watchlist = set(store.read_json(paths.WATCHLIST, default=[]) or [])
+    known_filers = {r["company_id"] for r in store.read_jsonl(paths.FUNDING)}
+
+    def rotate(pool: list[str], take: int) -> list[str]:
+        """Deterministic daily rotation so successive runs cover new ground."""
+        if not pool or take <= 0:
+            return []
+        if take >= len(pool):
+            return pool
+        offset = (today.toordinal() * take) % len(pool)
+        return (pool + pool)[offset : offset + take]
+
+    always = [
         c["id"] for c in companies
         if c["id"] in watchlist or c.get("origin") == "custom"
     ]
-    if len(priority) >= limit:
-        return priority[:limit]
+    selected: list[str] = always[:limit]
+    remaining = limit - len(selected)
+    if remaining <= 0:
+        return selected
 
-    # Rotate deterministically by day so successive runs cover new ground.
-    rest = [c["id"] for c in companies if c["id"] not in set(priority)]
-    if not rest:
-        return priority
-    offset = (today.toordinal() * limit) % len(rest)
-    remaining = limit - len(priority)
-    rotated = rest[offset:] + rest[:offset]
-    return priority + rotated[:remaining]
+    chosen = set(selected)
+    filers = sorted(
+        c["id"] for c in companies
+        if c["id"] in known_filers and c["id"] not in chosen
+    )
+    others = sorted(
+        c["id"] for c in companies
+        if c["id"] not in known_filers and c["id"] not in chosen
+    )
+
+    # Reserve at least a third of what's left for finding new companies.
+    discovery_budget = max(1, remaining // 3)
+    refresh_budget = remaining - discovery_budget
+
+    refresh = rotate(filers, refresh_budget)
+    # Anything the refresh share didn't use rolls into discovery.
+    discovery = rotate(others, remaining - len(refresh))
+
+    return selected + refresh + discovery
