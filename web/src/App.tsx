@@ -186,7 +186,7 @@ export default function App() {
           )}
 
           {tab === 'funding' && (
-            <FundingMatrix matrix={matrix} loading={matrixLoading} onSelect={setSelectedId} />
+            <FundingMatrix matrix={matrix} meta={meta} loading={matrixLoading} onSelect={setSelectedId} />
           )}
 
           {tab === 'about' && <About meta={meta} />}

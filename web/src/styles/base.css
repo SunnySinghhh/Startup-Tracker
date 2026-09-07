@@ -224,12 +224,55 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .table-wrap { flex: 1; overflow: auto; position: relative; }
 
+/* ---- Table grid ----------------------------------------------------------
+   The template lives here rather than inline so media queries can drop
+   columns. A column gap is essential: without one the right-aligned Team
+   figure butted straight against the momentum bar and read as a single
+   run-together value.
+
+   Hides are scoped to `.thead`/`.row` because `.th { display: flex }` is
+   declared later in this file and would otherwise win at equal specificity.
+   ------------------------------------------------------------------------ */
+
+.thead,
+.row {
+  display: grid;
+  grid-template-columns: 28px minmax(170px, 2.4fr) 124px 96px 56px 136px 48px;
+  column-gap: var(--space-4);
+  align-items: center;
+}
+
+/* Narrow enough that the fixed columns no longer fit beside the filter rail:
+   drop the least informative ones, widest-first. */
+@media (max-width: 1240px) {
+  .thead, .row { grid-template-columns: 28px minmax(170px, 2.4fr) 124px 96px 56px 136px; }
+  .thead .col-signals, .row .col-signals { display: none; }
+}
+@media (max-width: 1090px) {
+  .thead, .row { grid-template-columns: 28px minmax(160px, 2.4fr) 118px 56px 130px; }
+  .thead .col-batch, .row .col-batch { display: none; }
+}
+
+/* Below this the filter rail is hidden, so the full width is free again. */
+@media (max-width: 960px) {
+  .thead, .row { grid-template-columns: 28px minmax(170px, 2.4fr) 124px 96px 56px 136px 48px; }
+  .thead .col-batch { display: flex; }
+  .row .col-batch { display: block; }
+  .thead .col-signals { display: flex; }
+  .row .col-signals { display: block; }
+}
+
+@media (max-width: 720px) {
+  .thead, .row { grid-template-columns: 28px minmax(150px, 2.4fr) 56px 130px; }
+  .thead .col-sector, .row .col-sector,
+  .thead .col-batch, .row .col-batch,
+  .thead .col-signals, .row .col-signals { display: none; }
+}
+
 .thead {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: grid;
-  align-items: center;
   height: 38px;
   padding: 0 var(--space-5);
   background: var(--bg);
@@ -256,8 +299,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .th__arrow { opacity: 0.9; font-size: 9px; line-height: 1; }
 
 .row {
-  display: grid;
-  align-items: center;
   height: var(--row-height);
   padding: 0 var(--space-5);
   border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
@@ -270,6 +311,22 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .cell { min-width: 0; overflow: hidden; }
 .cell--right { text-align: right; justify-self: end; }
+.cell--text {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cell--dim { color: var(--text-muted); }
+.cell--absent { color: var(--text-faint); font-weight: 400; }
+
+.cell--momentum { display: flex; align-items: center; gap: var(--space-2); }
+.cell__bar { flex: 1; min-width: 0; }
+.cell__score {
+  font-size: var(--text-xs);
+  width: 26px; text-align: right;
+  color: var(--text-primary); font-weight: 550;
+}
+.cell--right.num, .col-team, .col-signals { font-size: var(--text-xs); color: var(--text-secondary); }
 
 .company {
   display: flex;

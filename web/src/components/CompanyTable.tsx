@@ -19,8 +19,6 @@ import { MomentumBar } from './Momentum'
 const ROW_HEIGHT = 46
 const OVERSCAN = 8
 
-const COLUMNS = '30px minmax(180px, 2.4fr) 132px 104px 74px 152px 58px'
-
 interface Props {
   companies: Company[]
   sort: Sort
@@ -69,9 +67,9 @@ export function CompanyTable({
   const last = Math.min(companies.length, first + visibleCount)
   const visible = companies.slice(first, last)
 
-  const header = (key: SortKey, label: string, right = false) => (
+  const header = (key: SortKey, label: string, right = false, extra = '') => (
     <div
-      className={`th${right ? ' th--right' : ''}`}
+      className={`th${right ? ' th--right' : ''}${extra ? ` ${extra}` : ''}`}
       data-active={sort.key === key}
       onClick={() => onSortChange(key)}
       role="columnheader"
@@ -91,14 +89,14 @@ export function CompanyTable({
 
   return (
     <>
-      <div className="thead" style={{ gridTemplateColumns: COLUMNS }} role="row">
+      <div className="thead" role="row">
         <div />
         {header('name', 'Company')}
-        {header('sector', 'Sector')}
-        {header('batch', 'Batch')}
-        {header('headcount', 'Team', true)}
-        {header('momentum', 'Momentum', true)}
-        {header('signals', 'Sig.', true)}
+        {header('sector', 'Sector', false, 'col-sector')}
+        {header('batch', 'Batch', false, 'col-batch')}
+        {header('headcount', 'Team', true, 'col-team')}
+        {header('momentum', 'Momentum', true, 'col-momentum')}
+        {header('signals', 'Sig.', true, 'col-signals')}
       </div>
 
       <div className="table-wrap" ref={scrollRef} onScroll={onScroll}>
@@ -139,7 +137,6 @@ function Row({
   return (
     <div
       className="row"
-      style={{ gridTemplateColumns: COLUMNS }}
       data-selected={selected}
       onClick={() => onSelect(company)}
       role="row"
@@ -171,37 +168,30 @@ function Row({
         </div>
       </div>
 
-      <div className="cell" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {company.sector ?? '—'}
-      </div>
+      <div className="cell cell--text col-sector">{company.sector ?? '—'}</div>
 
-      <div className="cell" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+      <div className="cell cell--text cell--dim col-batch">
         {company.batch ?? (company.origin === 'custom' ? 'Non-YC' : '—')}
       </div>
 
-      <div className="cell cell--right num" style={{ fontSize: 'var(--text-xs)', color: company.headcount ? 'var(--text-secondary)' : 'var(--text-faint)' }}>
+      <div
+        className={`cell cell--right num col-team${company.headcount ? '' : ' cell--absent'}`}
+      >
         {company.headcount ? plain(company.headcount) : '—'}
       </div>
 
-      <div className="cell" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="cell cell--momentum col-momentum">
+        <div className="cell__bar">
           <MomentumBar momentum={company.momentum} height={6} showEmptyTrack={false} />
         </div>
-        <span
-          className="num"
-          style={{
-            fontSize: 'var(--text-xs)',
-            width: 30,
-            textAlign: 'right',
-            color: score ? 'var(--text-primary)' : 'var(--text-faint)',
-            fontWeight: score ? 550 : 400,
-          }}
-        >
+        <span className={`num cell__score${score ? '' : ' cell--absent'}`}>
           {score ? score.toFixed(0) : '—'}
         </span>
       </div>
 
-      <div className="cell cell--right num" style={{ fontSize: 'var(--text-xs)', color: company.signalCount ? 'var(--text-secondary)' : 'var(--text-faint)' }}>
+      <div
+        className={`cell cell--right num col-signals${company.signalCount ? '' : ' cell--absent'}`}
+      >
         {company.signalCount ? compact(company.signalCount) : '—'}
       </div>
     </div>

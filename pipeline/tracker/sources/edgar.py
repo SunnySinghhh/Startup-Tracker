@@ -322,7 +322,14 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
     matched_companies = 0
 
     with http.client() as client:
-        for company_id in targets:
+        for position, company_id in enumerate(targets, start=1):
+            # A full backfill is thousands of requests over several minutes;
+            # without progress output it looks indistinguishable from a hang.
+            if position % 100 == 0:
+                log.info(
+                    "EDGAR progress: %d/%d checked, %d matched, %d filings",
+                    position, len(targets), matched_companies, len(new_rounds),
+                )
             company = by_id.get(company_id)
             if not company:
                 continue
