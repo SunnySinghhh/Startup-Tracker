@@ -3,11 +3,12 @@ import { About } from './components/About'
 import { CompanyComparison } from './components/CompanyComparison'
 import { FilterRail } from './components/FilterRail'
 import { FundingMatrix } from './components/FundingMatrix'
+import { InflectionFeed } from './components/InflectionFeed'
 import { Overview } from './components/Overview'
 import { StartupProfile } from './components/StartupProfile'
 import { StartupTable } from './components/StartupTable'
 import type { Company } from './data/types'
-import { useFundingMatrix, useIndex, useRecentSignals } from './data/useData'
+import { useFundingMatrix, useIndex, useInflections, useRecentSignals } from './data/useData'
 import type { Filters, Sort, SortKey } from './lib/filter'
 import { EMPTY_FILTERS, countActiveFilters, filterCompanies, sortCompanies } from './lib/filter'
 import { plain, relativeDays } from './lib/format'
@@ -17,6 +18,7 @@ import { loadCompare, loadWatchlist, saveCompare, saveWatchlist } from './lib/wa
 
 const TABS = [
   ['overview', 'Overview'],
+  ['signals', 'Inflections'],
   ['companies', 'Companies'],
   ['funding', 'Funding'],
   ['compare', 'Compare'],
@@ -43,6 +45,7 @@ const SORTS: { key: SortKey; label: string; dir: 'asc' | 'desc' }[] = [
 export default function App() {
   const { companies, meta, loading, error } = useIndex()
   const { signals } = useRecentSignals()
+  const { inflections, loading: inflectionsLoading } = useInflections()
 
   // The URL is the source of truth for which tab is open and which company is
   // showing, so a refresh lands where you were and a profile can be linked.
@@ -247,9 +250,34 @@ export default function App() {
               companies={companies}
               meta={meta}
               signals={signals}
+              inflections={inflections}
               onSelect={openCompany}
               onNavigate={setTab}
             />
+          )}
+
+          {tab === 'signals' && (
+            <div className="page">
+              <header className="page__head">
+                <div>
+                  <h1 className="page__title">Inflections</h1>
+                  <p className="page__lede">
+                    Moments where a company&apos;s trajectory changed, newest first — with the
+                    evidence behind each one. Detected over the last 120 days.
+                  </p>
+                </div>
+              </header>
+              <InflectionFeed
+                inflections={inflections}
+                loading={inflectionsLoading}
+                onSelect={openCompany}
+              />
+              <p className="footnote">
+                Job-posting bursts, executive hires and founder moves would belong here too, but
+                need people or jobs data that no free, terms-compliant source provides. They are
+                omitted rather than approximated.
+              </p>
+            </div>
           )}
 
           {tab === 'companies' && (

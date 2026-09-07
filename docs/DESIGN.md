@@ -140,6 +140,40 @@ The upstream source has an 11-week gap in early 2026. Carry-forward semantics
 mean windows spanning it stay correct rather than silently comparing against a
 reading from the far side.
 
+## Change as the unit of information
+
+Three layers turn a directory into something that answers "what is happening":
+
+**Trajectory** compares the most recent 90 days to the 90 before it. A single
+growth figure says how far a company moved; the second-order reading says
+whether it is speeding up. Companies too small or too new to read get *no*
+badge rather than a misleading "stable".
+
+**Peer percentiles** rank each company against a cohort — sector and stage
+where that group clears 25 members, sector alone otherwise. The cohort used is
+always named, because a percentile from a thin cohort is noise dressed as
+precision. Only companies that have a metric are ranked on it; missing values
+are never counted as zero, which would inflate everyone else.
+
+**Inflections** are moments where the trajectory changed, each carrying its
+evidence. The evidence chain is the feature: "hiring accelerating" is worthless
+if you can't see the numbers behind it, so every entry indents its support
+beneath the claim.
+
+The momentum score also carries a 30-day delta, recomputed by running the same
+model at a past date rather than storing history — so changing the weights
+re-scores the past instead of leaving stale deltas behind. This required
+growth calculations to honour an as-of date; before that fix they silently
+returned today's figures for any date and every delta came out zero.
+
+### Inflections that aren't there
+
+Job-posting bursts, executive hires, founder moves and product launches all
+belong in this feed conceptually. They need people or jobs data that no free,
+terms-compliant source provides, so they are absent rather than approximated.
+The feed states this rather than letting the omission read as "nothing
+happened".
+
 ## Performance
 
 - The index is ~3.1 MB raw / ~590 KB gzipped for 6,209 companies. Nulls, empty

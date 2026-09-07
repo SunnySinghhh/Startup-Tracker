@@ -409,3 +409,109 @@ kbd {
   padding: 1px 4px; border: 1px solid var(--border-strong);
   border-radius: 3px; background: var(--surface-2);
 }
+
+/* ---- Trajectory ------------------------------------------------------------ */
+
+.traj {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: var(--text-2xs); font-weight: 600;
+  white-space: nowrap; cursor: help;
+}
+.traj__glyph { font-size: 9px; line-height: 1; }
+.traj--hot   { color: var(--series-2); }
+.traj--good  { color: var(--good); }
+.traj--muted { color: var(--text-faint); }
+.traj--warn  { color: var(--warning); }
+.traj--bad   { color: var(--critical); }
+
+/* ---- Momentum delta -------------------------------------------------------- */
+
+.mscore__delta {
+  font-size: var(--text-2xs); font-weight: 600;
+  font-family: var(--font-mono); cursor: help;
+}
+
+/* ---- Peer context ----------------------------------------------------------- */
+
+.peer-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--space-3); margin-bottom: var(--space-3);
+}
+.peer-head__cohort { font-size: var(--text-sm); font-weight: 600; }
+.peer-head__n { font-size: var(--text-2xs); color: var(--text-muted); }
+
+.peer-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.peer-table th {
+  text-align: left; padding: var(--space-2) var(--space-2);
+  font-size: var(--text-2xs); text-transform: uppercase;
+  letter-spacing: var(--tracking-wide); color: var(--text-muted); font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+.peer-table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 45%, transparent);
+}
+.peer-table tr:last-child td { border-bottom: none; }
+
+.pct {
+  display: inline-block; padding: 1px var(--space-2);
+  font-size: var(--text-2xs); font-weight: 700;
+  font-family: var(--font-mono);
+  border-radius: var(--radius-sm); cursor: help;
+}
+.pct--hot   { color: var(--series-2); background: color-mix(in srgb, var(--series-2) 13%, transparent); }
+.pct--good  { color: var(--good);     background: var(--good-subtle); }
+.pct--muted { color: var(--text-muted); background: var(--surface-3); }
+.pct--warn  { color: var(--warning);  background: color-mix(in srgb, var(--warning) 14%, transparent); }
+
+/* ---- Inflection feed --------------------------------------------------------- */
+
+.inflections { list-style: none; margin: 0; padding: 0; }
+
+.inflection {
+  display: grid; grid-template-columns: 16px 1fr auto;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+.inflection:last-child { border-bottom: none; }
+
+.inflection__glyph {
+  font-size: 10px; line-height: 1.6; text-align: center;
+}
+.inflection__glyph--up   { color: var(--good); }
+.inflection__glyph--down { color: var(--critical); }
+
+.inflection__body { min-width: 0; }
+.inflection__head {
+  display: flex; align-items: baseline; gap: var(--space-2); flex-wrap: wrap;
+}
+.inflection__company {
+  font-size: var(--text-sm); font-weight: 650; color: var(--text-primary); padding: 0;
+}
+.inflection__company:hover { color: var(--accent); }
+.inflection__headline { font-size: var(--text-sm); font-weight: 550; }
+.inflection__date {
+  margin-left: auto; font-size: var(--text-2xs); color: var(--text-faint);
+  font-family: var(--font-mono); white-space: nowrap;
+}
+
+/* The evidence chain is the point of the feature — indented under the claim
+   so the relationship between assertion and support is visually explicit. */
+.inflection__evidence {
+  list-style: none; margin: var(--space-2) 0 0; padding: 0 0 0 var(--space-3);
+  border-left: 1px solid var(--border);
+}
+.inflection__evidence li {
+  font-size: var(--text-xs); color: var(--text-muted);
+  line-height: var(--leading-snug); padding: 1px 0;
+}
+
+.inflection__logo {
+  width: 24px; height: 24px; border-radius: var(--radius-sm);
+  object-fit: contain; background: var(--surface-3); align-self: center;
+}
+.inflection__logo--fallback {
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 650; color: var(--text-muted);
+}

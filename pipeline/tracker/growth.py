@@ -85,9 +85,15 @@ def _value_at(series: list[tuple[date, int]], target: date, max_carry: int):
 
 
 def compute(conn: sqlite3.Connection, company_id: str, today: date | None = None) -> dict:
-    """Growth across every window, plus a downsampled series for the sparkline."""
+    """Growth across every window, plus a downsampled series for the sparkline.
+
+    ``today`` is an *as-of* date: observations after it are ignored, so the
+    result is what would have been reported on that day. This is what makes
+    "score moved +12 this month" possible — without truncation, asking for a
+    past date silently returned today's figures and every delta came out zero.
+    """
     today = today or date.today()
-    series = _series(conn, company_id)
+    series = [point for point in _series(conn, company_id) if point[0] <= today]
 
     if not series:
         return {"current": None, "windows": {}, "spark": [], "observations": 0}
@@ -141,3 +147,75 @@ def _downsample(values: list[int], target: int) -> list[int]:
         return values
     step = (len(values) - 1) / (target - 1)
     return [values[round(i * step)] for i in range(target)]
+
+
+# ---------------------------------------------------------------------------
+# Trajectory
+# ---------------------------------------------------------------------------
+
+# A company must be at least this size before a percentage move is treated as
+# a trend. Below it, one or two hires swing the rate enough to label a company
+# "accelerating" on noise.
+_TRAJECTORY_MIN_BASE = 10
+
+TRAJECTORIES = ("accelerating", "growing", "stable", "cooling", "contracting")
+
+
+def _pct_between(series: list[tuple[date, int]], start: date, end: date) -> float | None:
+    """Percentage change between the values in force on two dates."""
+    a = _value_at(series, start, _MAX_CARRY["d180"])
+    b = _value_at(series, end, _MAX_CARRY["d90"])
+    if a is None or b is None or not a[1]:
+        return None
+    return (b[1] - a[1]) / a[1] * 100
+
+
+def trajectory(conn: sqlite3.Connection, company_id: str, today: date | None = None) -> dict:
+    """Classify direction of travel by comparing two consecutive 90-day windows.
+
+    A single growth figure says how far a company moved; it doesn't say whether
+    it is speeding up or slowing down. Comparing the most recent quarter to the
+    one before it does, and that second-order reading is what makes a directory
+    feel like a live market rather than a snapshot.
+
+    Returns ``label: None`` when there isn't enough history or the company is
+    too small for a rate to mean anything — the UI then shows nothing at all,
+    which is better than showing "stable" for a company we cannot read.
+    """
+    today = today or date.today()
+    series = [point for point in _series(conn, company_id) if point[0] <= today]
+    if len(series) < 2:
+        return {"label": None, "recent": None, "prior": None}
+
+    latest_date, current = series[-1]
+    if current < _TRAJECTORY_MIN_BASE:
+        return {"label": None, "recent": None, "prior": None, "reason": "too small to read"}
+
+    recent = _pct_between(series, latest_date - timedelta(days=90), latest_date)
+    prior = _pct_between(
+        series, latest_date - timedelta(days=180), latest_date - timedelta(days=90)
+    )
+
+    if recent is None:
+        return {"label": None, "recent": None, "prior": None}
+
+    if recent <= -15:
+        label = "contracting"
+    elif recent < -3:
+        label = "cooling"
+    elif prior is not None and recent >= 15 and recent > prior + 10:
+        # Speeding up: this quarter's rate clearly beats last quarter's.
+        label = "accelerating"
+    elif prior is not None and prior >= 15 and recent < prior - 10 and recent < 8:
+        # Was growing fast, now noticeably slower.
+        label = "cooling"
+    elif recent >= 5:
+        label = "growing"
+    else:
+        label = "stable"
+
+    return {
+        "label": label,
+        "recent": round(recent, 1),
+        "prior": round(prior, 1) if prior is not None else None,
+    }

@@ -8,9 +8,10 @@
  */
 
 import { useMemo, useState } from 'react'
-import type { Company, Meta, RecentSignal } from '../data/types'
+import type { Company, Inflection, Meta, RecentSignal } from '../data/types'
 import { compactMoney, formatDate, plain, relativeDays } from '../lib/format'
 import { headlineGrowth } from '../lib/signals'
+import { InflectionFeed } from './InflectionFeed'
 import { TrendingStartups } from './TrendingStartups'
 
 const SIGNAL_COLOR: Record<string, string> = {
@@ -25,11 +26,12 @@ interface Props {
   companies: Company[]
   meta: Meta
   signals: RecentSignal[]
+  inflections: Inflection[]
   onSelect: (companyId: string) => void
-  onNavigate: (tab: 'companies' | 'funding' | 'about') => void
+  onNavigate: (tab: 'companies' | 'funding' | 'about' | 'signals') => void
 }
 
-export function Overview({ companies, meta, signals, onSelect, onNavigate }: Props) {
+export function Overview({ companies, meta, signals, inflections, onSelect, onNavigate }: Props) {
   const [query, setQuery] = useState('')
 
   const market = useMemo(() => {
@@ -148,6 +150,16 @@ export function Overview({ companies, meta, signals, onSelect, onNavigate }: Pro
       </section>
 
       <TrendingStartups companies={companies} onSelect={onSelect} />
+
+      <section className="card">
+        <header className="card__head">
+          <h2 className="card__title">Recent inflections</h2>
+          <button className="link" onClick={() => onNavigate('signals')}>
+            See all
+          </button>
+        </header>
+        <InflectionFeed inflections={inflections} onSelect={onSelect} limit={6} compact />
+      </section>
 
       <div className="split">
         <section className="card">

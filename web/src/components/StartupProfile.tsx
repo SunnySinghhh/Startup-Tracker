@@ -17,6 +17,8 @@ import { ChangeSummary } from './ChangeSummary'
 import { FundingTimeline } from './FundingTimeline'
 import { HeadcountChart } from './HeadcountChart'
 import { MomentumScore, SignalTags, StageBadge } from './MomentumBadge'
+import { PeerContext } from './PeerContext'
+import { TrajectoryBadge } from './Trajectory'
 import { WatchlistButton } from './WatchlistButton'
 
 interface Props {
@@ -67,6 +69,7 @@ export function StartupProfile({
           {company.tagline && <p className="panel__tagline">{company.tagline}</p>}
           <div className="panel__tags">
             <StageBadge company={company} />
+            <TrajectoryBadge trajectory={company.trajectory} showLabel />
             {company.sector && <span className="chip">{company.sector}</span>}
             {company.status && company.status !== 'Active' && (
               <span className="chip">{company.status}</span>
@@ -197,6 +200,16 @@ export function StartupProfile({
           </p>
         )}
       </section>
+
+      {company.peers && (
+        <section className="panel__section">
+          <h3 className="section-title">
+            Against its cohort
+            <span className="source-note">percentile rank</span>
+          </h3>
+          <PeerContext company={company} />
+        </section>
+      )}
 
       <section className="panel__section">
         <h3 className="section-title">Trajectory</h3>

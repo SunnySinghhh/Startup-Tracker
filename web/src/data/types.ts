@@ -24,6 +24,8 @@ export interface Momentum {
   coverage: number
   confidence: Confidence
   components?: MomentumComponents
+  /** Change over the last 30 days. Omitted when it barely moved. */
+  delta30?: number
 }
 
 /** One growth window. Absent entirely when the company has no observation old
@@ -47,6 +49,49 @@ export interface LastRound {
   date: string
   stage?: string | null
   amount?: number | null
+}
+
+export type TrajectoryLabel =
+  | 'accelerating'
+  | 'growing'
+  | 'stable'
+  | 'cooling'
+  | 'contracting'
+
+export interface Trajectory {
+  label: TrajectoryLabel
+  /** Percentage change over the most recent 90 days. */
+  recent: number | null
+  /** The 90 days before that, for comparison. */
+  prior: number | null
+}
+
+export interface PeerMetric {
+  percentile: number
+  value: number
+  median: number
+  /** Cohort members that actually had this metric. */
+  n: number
+}
+
+export interface Peers {
+  cohort: string
+  cohortSize: number
+  metrics: Partial<Record<'growth' | 'headcount' | 'raised' | 'momentum', PeerMetric>>
+}
+
+/** A moment where a company's trajectory changed, with its evidence. */
+export interface Inflection {
+  id: string
+  companyId: string
+  company: string
+  logo?: string | null
+  sector?: string | null
+  type: 'headcount' | 'funding' | 'milestone' | 'hiring'
+  direction: 'up' | 'down'
+  date: string
+  headline: string
+  evidence: string[]
 }
 
 export interface Company {
@@ -85,6 +130,8 @@ export interface Company {
   totalRaised?: number
   roundCount?: number
   lastRound?: LastRound
+  trajectory?: Trajectory
+  peers?: Peers
 }
 
 export interface Meta {

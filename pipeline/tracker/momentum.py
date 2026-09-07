@@ -103,14 +103,19 @@ def _press_score(conn: sqlite3.Connection, company_id: str, today: date) -> floa
     return _clamp(math.log1p(total) / math.log1p(8))
 
 
-def _hiring_score(conn: sqlite3.Connection, company_id: str) -> float | None:
+def _hiring_score(conn: sqlite3.Connection, company_id: str, today: date) -> float | None:
+    """The hiring flag in force on ``today``.
+
+    Bounded by the as-of date like every other component; reading the latest
+    flag regardless of date would leak present state into a past score.
+    """
     row = conn.execute(
         """
         SELECT is_hiring FROM metric_snapshots
-        WHERE company_id = ? AND is_hiring IS NOT NULL
+        WHERE company_id = ? AND is_hiring IS NOT NULL AND snapshot_date <= ?
         ORDER BY snapshot_date DESC LIMIT 1
         """,
-        (company_id,),
+        (company_id, today.isoformat()),
     ).fetchone()
     if row is None:
         return None
@@ -188,6 +193,36 @@ def _confidence(components: dict[str, float | None], history_days: int) -> str:
     return "low"
 
 
+def _score_for(conn: sqlite3.Connection, cid: str, today: date) -> tuple[float, dict]:
+    """Score one company as of ``today``, returning (score, components)."""
+    growth_result = _headcount_growth(conn, cid, today)
+    components: dict[str, float | None] = {
+        "headcount_growth": growth_result[0] if growth_result else None,
+        "press": _press_score(conn, cid, today),
+        "hiring": _hiring_score(conn, cid, today),
+        "funding_recency": _funding_recency(conn, cid, today),
+        "github": _github_score(conn, cid, today),
+    }
+    available = {k: v for k, v in components.items() if v is not None}
+    weighted = sum(WEIGHTS[k] * v for k, v in available.items())
+    return weighted * 100, components
+
+
+def scores_as_of(conn: sqlite3.Connection, when: date) -> dict[str, float]:
+    """Every company's score at a past date, for reporting how it has moved.
+
+    A score with no direction is a static label; "87, up 12 this month" tells
+    you something happened. Recomputing rather than storing history means the
+    delta always reflects the current model, so changing the weights doesn't
+    leave stale deltas behind.
+    """
+    out: dict[str, float] = {}
+    for row in conn.execute("SELECT id FROM companies"):
+        score, _ = _score_for(conn, row["id"], when)
+        out[row["id"]] = round(score, 2)
+    return out
+
+
 def compute(conn: sqlite3.Connection, today: date | None = None) -> int:
     today = today or date.today()
 
@@ -207,11 +242,11 @@ def compute(conn: sqlite3.Connection, today: date | None = None) -> int:
     rows = []
 
     for cid in company_ids:
-        growth = _headcount_growth(conn, cid, today)
+        growth_result = _headcount_growth(conn, cid, today)
         components: dict[str, float | None] = {
-            "headcount_growth": growth[0] if growth else None,
+            "headcount_growth": growth_result[0] if growth_result else None,
             "press": _press_score(conn, cid, today),
-            "hiring": _hiring_score(conn, cid),
+            "hiring": _hiring_score(conn, cid, today),
             "funding_recency": _funding_recency(conn, cid, today),
             "github": _github_score(conn, cid, today),
         }
@@ -232,8 +267,8 @@ def compute(conn: sqlite3.Connection, today: date | None = None) -> int:
                 round(score, 2),
                 round(score_available, 2),
                 round(coverage, 3),
-                round(growth[1] * 100, 2) if growth else None,
-                growth[2] if growth else None,
+                round(growth_result[1] * 100, 2) if growth_result else None,
+                growth_result[2] if growth_result else None,
                 components["press"],
                 components["funding_recency"],
                 components["hiring"],
@@ -253,6 +288,23 @@ def compute(conn: sqlite3.Connection, today: date | None = None) -> int:
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
         """,
         rows,
+    )
+    conn.commit()
+
+    # Re-run the model 30 days back so the score carries a direction. Computed
+    # rather than stored historically, so a change to the weights re-scores the
+    # past too instead of leaving stale deltas behind.
+    prior = scores_as_of(conn, today - timedelta(days=30))
+    current = {
+        r["company_id"]: r["score"]
+        for r in conn.execute("SELECT company_id, score FROM momentum")
+    }
+    conn.executemany(
+        "UPDATE momentum SET score_30d_ago = ?, score_delta_30d = ? WHERE company_id = ?",
+        [
+            (value, round((current.get(cid) or 0) - value, 2), cid)
+            for cid, value in prior.items()
+        ],
     )
     conn.commit()
     return len(rows)

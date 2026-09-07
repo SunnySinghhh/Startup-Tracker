@@ -105,6 +105,8 @@ CREATE TABLE IF NOT EXISTS momentum (
     company_id          TEXT PRIMARY KEY,
     score               REAL,          -- ranking: observed evidence only
     score_available     REAL,          -- strength on measured components alone
+    score_30d_ago       REAL,          -- same model, run 30 days back
+    score_delta_30d     REAL,
     coverage            REAL,          -- fraction of total weight observed
     headcount_growth_90d REAL,
     headcount_delta_90d INTEGER,

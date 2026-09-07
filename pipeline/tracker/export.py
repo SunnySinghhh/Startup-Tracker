@@ -19,7 +19,7 @@ import logging
 from collections import Counter
 from datetime import date
 
-from . import db, growth, paths, store
+from . import db, growth, inflections, paths, peers, store
 from .momentum import WEIGHTS
 
 log = logging.getLogger(__name__)
@@ -99,6 +99,7 @@ def _index_rows(conn) -> list[dict]:
             c.founded_date, c.status, c.stage, c.batch, c.logo_url,
             c.profile_url, c.origin, c.top_company, c.notes,
             m.score, m.score_available, m.coverage, m.confidence,
+            m.score_30d_ago, m.score_delta_30d,
             m.headcount_growth_90d, m.headcount_delta_90d,
             m.press_score, m.funding_recency, m.hiring_score, m.github_score,
             s.headcount, s.is_hiring,
@@ -134,6 +135,7 @@ def _index_rows(conn) -> list[dict]:
 
         momentum = None
         if r["score"]:
+            delta = r["score_delta_30d"]
             momentum = _compact(
                 {
                     "score": round(r["score"], 1),
@@ -141,6 +143,9 @@ def _index_rows(conn) -> list[dict]:
                     "coverage": r["coverage"],
                     "confidence": r["confidence"],
                     "components": components,
+                    # Only surfaced when it actually moved; "+0 this month" is
+                    # noise on thousands of rows.
+                    "delta30": round(delta, 1) if delta and abs(delta) >= 1 else None,
                 }
             )
 
@@ -172,6 +177,7 @@ def _index_rows(conn) -> list[dict]:
                 "headcount": r["headcount"],
                 "isHiring": bool(r["is_hiring"]) if r["is_hiring"] is not None else None,
                 **_growth_fields(conn, r["id"], today),
+                **_trajectory_field(conn, r["id"], today),
                 **_funding_fields(funding.get(r["id"])),
                 "signalCount": r["signal_count"] or None,
                 "historyPoints": r["history_points"] or None,
@@ -198,6 +204,20 @@ def _growth_fields(conn, company_id: str, today: date) -> dict:
     if g.get("observations"):
         fields["observations"] = g["observations"]
     return fields
+
+
+def _trajectory_field(conn, company_id: str, today: date) -> dict:
+    """Direction of travel, omitted entirely when it can't be read."""
+    result = growth.trajectory(conn, company_id, today)
+    if not result.get("label"):
+        return {}
+    return {
+        "trajectory": {
+            "label": result["label"],
+            "recent": result["recent"],
+            "prior": result["prior"],
+        }
+    }
 
 
 def _funding_fields(summary: dict | None) -> dict:
@@ -481,6 +501,11 @@ def run() -> dict[str, object]:
     conn = db.connect(paths.DB)
 
     index = _index_rows(conn)
+
+    # Peer context is computed over the finished index so every company is
+    # ranked against the same population the UI will show.
+    peers.annotate(index)
+
     store.write_json(paths.WEB_DATA / "index.json", index, compact=True)
 
     meta = _meta(conn, index)
@@ -489,6 +514,13 @@ def run() -> dict[str, object]:
 
     recent = _recent_signals(conn)
     store.write_json(paths.WEB_DATA / "recent-signals.json", recent, compact=True)
+
+    company_rows = [
+        dict(r)
+        for r in conn.execute("SELECT id, name, logo_url, sector FROM companies")
+    ]
+    feed = inflections.detect(conn, company_rows, date.today())
+    store.write_json(paths.WEB_DATA / "inflections.json", feed, compact=True)
 
     matrix = _funding_matrix(conn)
     store.write_json(
@@ -507,5 +539,6 @@ def run() -> dict[str, object]:
         "index_size_kb": index_kb,
         "recent_signals": len(recent),
         "funding_matrix_rows": len(matrix),
+        "inflections": len(feed),
         "detail_files": detail_count,
     }

@@ -1,7 +1,14 @@
 /** Loading the static JSON bundles. */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Company, CompanyDetail, FundingMatrix, Meta, RecentSignal } from './types'
+import type {
+  Company,
+  CompanyDetail,
+  FundingMatrix,
+  Inflection,
+  Meta,
+  RecentSignal,
+} from './types'
 
 /** Vite injects the Pages sub-path here; data lives beside the built assets. */
 const BASE = import.meta.env.BASE_URL
@@ -91,6 +98,32 @@ export function useRecentSignals() {
   }, [])
 
   return { signals, loading }
+}
+
+/** The inflection feed. Small enough to load with the page. */
+export function useInflections() {
+  const [inflections, setInflections] = useState<Inflection[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`${BASE}data/inflections.json`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows: Inflection[]) => {
+        if (!cancelled) setInflections(rows)
+      })
+      .catch(() => {
+        if (!cancelled) setInflections([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return { inflections, loading }
 }
 
 /** The funding matrix bundle, loaded only when that tab is opened. */

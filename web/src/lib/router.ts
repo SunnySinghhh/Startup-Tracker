@@ -15,9 +15,15 @@
  *   #/compare
  */
 
-export type RouteTab = 'overview' | 'companies' | 'funding' | 'compare' | 'about'
+export type RouteTab =
+  | 'overview'
+  | 'signals'
+  | 'companies'
+  | 'funding'
+  | 'compare'
+  | 'about'
 
-const TABS: RouteTab[] = ['overview', 'companies', 'funding', 'compare', 'about']
+const TABS: RouteTab[] = ['overview', 'signals', 'companies', 'funding', 'compare', 'about']
 
 export interface Route {
   tab: RouteTab

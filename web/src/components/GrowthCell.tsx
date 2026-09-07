@@ -4,6 +4,7 @@ import type { Company } from '../data/types'
 import { plain } from '../lib/format'
 import { WINDOW_LABEL, headlineGrowth } from '../lib/signals'
 import { Sparkline } from './LineChart'
+import { TrajectoryBadge } from './Trajectory'
 
 export function GrowthCell({ company }: { company: Company }) {
   const growth = headlineGrowth(company.growth)
@@ -35,6 +36,7 @@ export function GrowthCell({ company }: { company: Company }) {
           —
         </span>
       )}
+      <TrajectoryBadge trajectory={company.trajectory} />
       {company.spark && company.spark.length > 1 && (
         <Sparkline
           points={company.spark}

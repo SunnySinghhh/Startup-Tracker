@@ -56,9 +56,22 @@ export function MomentumScore({ company, size = 'md' }: { company: Company; size
     `for this company. Unmeasured components contribute nothing rather than being guessed, ` +
     `so a low score can mean "quiet" or "not yet measured".`
 
+  const delta = company.momentum?.delta30
+
   return (
     <span className={`mscore mscore--${size} mscore--${band.tone}`} title={tip}>
       <span className="mscore__value">{score > 0 ? score.toFixed(0) : '—'}</span>
+      {/* Only shown when it actually moved — "+0 this month" on thousands of
+          rows is noise, and a score with no direction is just a label. */}
+      {delta != null && (
+        <span
+          className={`mscore__delta ${delta > 0 ? 'is-up' : 'is-down'}`}
+          title={`${delta > 0 ? 'Up' : 'Down'} ${Math.abs(delta).toFixed(0)} points over the last 30 days`}
+        >
+          {delta > 0 ? '↑' : '↓'}
+          {Math.abs(delta).toFixed(0)}
+        </span>
+      )}
       {size === 'lg' && <span className="mscore__band">{band.label}</span>}
     </span>
   )
