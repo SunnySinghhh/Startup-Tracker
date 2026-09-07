@@ -23,6 +23,12 @@ function numberOrNull(value: string): number | null {
 export function FilterRail({ meta, filters, onChange, watchlistSize }: Props) {
   const active = countActiveFilters(filters)
 
+  // Narrow the city list to the chosen country — a flat list of every city is
+  // a scroll rather than a filter.
+  const cityOptions = (meta.facets.cities ?? []).filter(
+    (c) => !filters.country || c.country === filters.country,
+  )
+
   const toggleSet = (key: 'sectors' | 'stages' | 'statuses', value: string) => {
     const next = new Set(filters[key])
     if (next.has(value)) next.delete(value)
@@ -110,7 +116,10 @@ export function FilterRail({ meta, filters, onChange, watchlistSize }: Props) {
         <select
           className="select"
           value={filters.country}
-          onChange={(e) => onChange({ ...filters, country: e.target.value })}
+          onChange={(e) =>
+            // Changing country invalidates a city chosen under the old one.
+            onChange({ ...filters, country: e.target.value, city: '' })
+          }
           aria-label="Filter by country"
         >
           <option value="">All countries</option>
@@ -120,6 +129,24 @@ export function FilterRail({ meta, filters, onChange, watchlistSize }: Props) {
             </option>
           ))}
         </select>
+
+        <select
+          className="select"
+          value={filters.city}
+          onChange={(e) => onChange({ ...filters, city: e.target.value })}
+          aria-label="Filter by city"
+          style={{ marginTop: 'var(--space-2)' }}
+        >
+          <option value="">All cities</option>
+          {cityOptions.map(({ city, companies }) => (
+            <option key={city} value={city}>
+              {city} ({plain(companies)})
+            </option>
+          ))}
+        </select>
+        <p className="rail__hint">
+          Cities with at least 3 tracked companies. Smaller ones are still reachable by search.
+        </p>
       </div>
 
       <div className="rail__group">

@@ -17,6 +17,7 @@ export interface Filters {
   statuses: Set<string>
   batch: string
   country: string
+  city: string
   remoteOnly: boolean
   origin: 'all' | 'yc' | 'custom'
   hiringOnly: boolean
@@ -38,6 +39,7 @@ export const EMPTY_FILTERS: Filters = {
   statuses: new Set(),
   batch: '',
   country: '',
+  city: '',
   remoteOnly: false,
   origin: 'all',
   hiringOnly: false,
@@ -86,6 +88,7 @@ export function filterCompanies(
     if (filters.withSignalsOnly && !c.signalCount) return false
     if (filters.batch && c.batch !== filters.batch) return false
     if (filters.country && c.country !== filters.country) return false
+    if (filters.city && c.city !== filters.city) return false
     if (filters.remoteOnly && !c.remote) return false
 
     if (filters.fundingStages.size) {
@@ -220,6 +223,7 @@ export function countActiveFilters(f: Filters): number {
     f.statuses.size +
     (f.batch ? 1 : 0) +
     (f.country ? 1 : 0) +
+    (f.city ? 1 : 0) +
     (f.remoteOnly ? 1 : 0) +
     (f.origin !== 'all' ? 1 : 0) +
     (f.hiringOnly ? 1 : 0) +

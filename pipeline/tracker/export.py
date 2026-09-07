@@ -251,6 +251,13 @@ def _meta(conn, index: list[dict]) -> dict:
     # top. The count is shown alongside each option.
     country_counts = Counter(c["country"] for c in index if c.get("country"))
 
+    # Cities are paired with their country so the UI can narrow the list when a
+    # country is chosen — a flat list of 279 cities is a scroll, not a filter.
+    city_counts: Counter[tuple[str, str]] = Counter()
+    for c in index:
+        if c.get("city"):
+            city_counts[(c["city"], c.get("country") or "")] += 1
+
     history_days = 0
     if span and span["lo"] and span["hi"]:
         history_days = (date.fromisoformat(span["hi"]) - date.fromisoformat(span["lo"])).days
@@ -281,6 +288,13 @@ def _meta(conn, index: list[dict]) -> dict:
             "topTags": [t for t, _ in tag_counts.most_common(60)],
             "countries": [
                 {"country": name, "companies": n} for name, n in country_counts.most_common()
+            ],
+            # Only cities with a few companies: below that a filter returns a
+            # near-empty table and the dropdown becomes unusable.
+            "cities": [
+                {"city": city, "country": country, "companies": n}
+                for (city, country), n in city_counts.most_common()
+                if n >= 3
             ],
         },
         "remoteCount": sum(1 for c in index if c.get("remote")),

@@ -159,6 +159,7 @@ export interface Meta {
     batches: string[]
     topTags: string[]
     countries: CountryCount[]
+    cities: CityCount[]
   }
   remoteCount?: number
   momentumWeights: Record<string, number>
@@ -167,6 +168,12 @@ export interface Meta {
 }
 
 export interface CountryCount {
+  country: string
+  companies: number
+}
+
+export interface CityCount {
+  city: string
   country: string
   companies: number
 }
