@@ -36,12 +36,25 @@ export function formatDate(iso?: string | null): string {
   })
 }
 
-/** Relative age for recency cues, paired with the absolute date, never alone. */
+/**
+ * Relative age for recency cues, paired with the absolute date, never alone.
+ *
+ * Both sides are reduced to a *local* calendar day before subtracting. Parsing
+ * the date as UTC midnight and comparing it to `Date.now()` reports "yesterday"
+ * for something written moments ago whenever local time is behind UTC — which
+ * made a just-completed pipeline run look a day stale.
+ */
 export function relativeDays(iso?: string | null): string {
   if (!iso) return ''
-  const then = new Date(`${iso.slice(0, 10)}T00:00:00Z`).getTime()
+  const parts = iso.slice(0, 10).split('-').map(Number)
+  const [year, month, day] = parts
+  if (!year || !month || !day) return ''
+  const then = new Date(year, month - 1, day).getTime()
   if (Number.isNaN(then)) return ''
-  const days = Math.floor((Date.now() - then) / 86_400_000)
+
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const days = Math.round((today - then) / 86_400_000)
   if (days < 0) return 'upcoming'
   if (days === 0) return 'today'
   if (days === 1) return 'yesterday'
