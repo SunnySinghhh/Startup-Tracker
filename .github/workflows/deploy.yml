@@ -4,6 +4,13 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # The scheduled ingest commits new observations using GITHUB_TOKEN, and
+  # GitHub does not fire `push` events for those commits (its guard against
+  # workflows triggering themselves). Without this trigger the data would be
+  # committed daily and never deployed, leaving the site permanently stale.
+  workflow_run:
+    workflows: ['Ingest signals']
+    types: [completed]
 
 permissions:
   contents: read
@@ -18,8 +25,18 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # `completed` fires on failure too. Skip those; a push or manual dispatch
+    # has no workflow_run payload, so the first clause lets them through.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     steps:
+      # Always build from the tip of main. On a workflow_run event github.sha
+      # points at the commit that started the *ingest*, which is one commit
+      # behind the data it just wrote.
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-python@v5
         with:

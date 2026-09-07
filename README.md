@@ -131,7 +131,15 @@ npm run dev
    `TRACKER_CONTACT_EMAIL` with your email. SEC blocks requests without it.
 4. Push to `main`, or run the **Deploy dashboard** workflow manually.
 
-`ingest.yml` then runs daily at 06:15 UTC and commits new observations.
+`ingest.yml` then runs daily at 06:15 UTC and commits new observations, which
+triggers a redeploy.
+
+> Note: the deploy workflow listens for `workflow_run` on the ingest, not just
+> `push`. Commits made with `GITHUB_TOKEN` don't fire `push` events — GitHub's
+> guard against self-triggering workflows — so without that trigger the daily
+> data would be committed and never deployed.
+
+To test ingestion immediately: **Actions → Ingest signals → Run workflow.**
 
 ## Adding companies outside YC
 
