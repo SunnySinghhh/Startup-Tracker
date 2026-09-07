@@ -1,22 +1,25 @@
 /**
- * Virtualised company table.
+ * The startup directory table.
  *
- * The index holds ~6,200 companies and filters run client-side, so the table
- * must stay responsive while every keystroke re-filters the whole set. Only the
- * rows inside the viewport (plus a small overscan) are mounted; a spacer div
- * carries the full scroll height so the scrollbar stays honest.
+ * Dense by design: the row should answer "what is happening with this company"
+ * at a glance — stage, capital, headcount *and its direction*, momentum — not
+ * merely "this company exists". The sparkline sits beside the headcount so the
+ * trend is readable without opening anything.
  *
- * Windowing is ~40 lines here and avoids a dependency whose API would outlive
- * its usefulness. Rows are a fixed height, which is what makes it this simple.
+ * Virtualised: the index holds ~4,500 companies and filters run in the browser,
+ * so only rows in the viewport are mounted. Row height is fixed, which is what
+ * keeps the windowing this simple.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Company } from '../data/types'
-import { compact, initials, plain } from '../lib/format'
 import type { Sort, SortKey } from '../lib/filter'
-import { MomentumBar } from './Momentum'
+import { compactMoney, formatDate, initials, relativeDays } from '../lib/format'
+import { GrowthCell } from './GrowthCell'
+import { MomentumScore, SignalTags, StageBadge } from './MomentumBadge'
+import { WatchlistButton } from './WatchlistButton'
 
-const ROW_HEIGHT = 46
+const ROW_HEIGHT = 60
 const OVERSCAN = 8
 
 interface Props {
@@ -27,9 +30,11 @@ interface Props {
   onSelect: (company: Company) => void
   watchlist: Set<string>
   onToggleWatch: (id: string) => void
+  compareIds: string[]
+  onToggleCompare: (id: string) => void
 }
 
-export function CompanyTable({
+export function StartupTable({
   companies,
   sort,
   onSortChange,
@@ -37,6 +42,8 @@ export function CompanyTable({
   onSelect,
   watchlist,
   onToggleWatch,
+  compareIds,
+  onToggleCompare,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [scrollTop, setScrollTop] = useState(0)
@@ -52,7 +59,6 @@ export function CompanyTable({
     return () => observer.disconnect()
   }, [])
 
-  // Filters changing should put the user back at the top of the results.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 })
     setScrollTop(0)
@@ -67,7 +73,7 @@ export function CompanyTable({
   const last = Math.min(companies.length, first + visibleCount)
   const visible = companies.slice(first, last)
 
-  const header = (key: SortKey, label: string, right = false, extra = '') => (
+  const header = (key: SortKey, label: string, extra = '', right = false) => (
     <div
       className={`th${right ? ' th--right' : ''}${extra ? ` ${extra}` : ''}`}
       data-active={sort.key === key}
@@ -92,24 +98,28 @@ export function CompanyTable({
       <div className="thead" role="row">
         <div />
         {header('name', 'Company')}
-        {header('sector', 'Sector', false, 'col-sector')}
-        {header('batch', 'Batch', false, 'col-batch')}
-        {header('headcount', 'Team', true, 'col-team')}
-        {header('momentum', 'Momentum', true, 'col-momentum')}
-        {header('signals', 'Sig.', true, 'col-signals')}
+        {header('sector', 'Industry', 'col-sector')}
+        {header('stage', 'Stage', 'col-stage')}
+        {header('raised', 'Raised', 'col-raised', true)}
+        {header('growth', 'Team · growth', 'col-growth')}
+        {header('location', 'Location', 'col-location')}
+        {header('funded', 'Last round', 'col-funded', true)}
+        {header('momentum', 'Mom.', 'col-momentum', true)}
       </div>
 
       <div className="table-wrap" ref={scrollRef} onScroll={onScroll}>
         <div style={{ height: companies.length * ROW_HEIGHT, position: 'relative' }}>
           <div style={{ transform: `translateY(${first * ROW_HEIGHT}px)` }}>
             {visible.map((company) => (
-              <Row
+              <StartupRow
                 key={company.id}
                 company={company}
                 selected={company.id === selectedId}
                 watched={watchlist.has(company.id)}
+                comparing={compareIds.includes(company.id)}
                 onSelect={onSelect}
                 onToggleWatch={onToggleWatch}
+                onToggleCompare={onToggleCompare}
               />
             ))}
           </div>
@@ -119,80 +129,92 @@ export function CompanyTable({
   )
 }
 
-function Row({
+export function StartupRow({
   company,
   selected,
   watched,
+  comparing,
   onSelect,
   onToggleWatch,
+  onToggleCompare,
 }: {
   company: Company
   selected: boolean
   watched: boolean
+  comparing: boolean
   onSelect: (c: Company) => void
   onToggleWatch: (id: string) => void
+  onToggleCompare: (id: string) => void
 }) {
-  const score = company.momentum?.score
+  const location = company.city
+    ? `${company.city}${company.country && company.country !== company.city ? `, ${company.country}` : ''}`
+    : (company.country ?? null)
 
   return (
     <div
       className="row"
       data-selected={selected}
+      data-comparing={comparing}
       onClick={() => onSelect(company)}
       role="row"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter') onSelect(company)
+        if (e.key === 'c') onToggleCompare(company.id)
       }}
     >
-      <button
-        className="star"
-        data-on={watched}
-        aria-label={watched ? `Remove ${company.name} from watchlist` : `Add ${company.name} to watchlist`}
-        aria-pressed={watched}
-        onClick={(e) => {
-          e.stopPropagation()
-          onToggleWatch(company.id)
-        }}
-      >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill={watched ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round">
-          <path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6-5.9-3.2-5.9 3.2 1.2-6.6L2.5 9.5l6.6-.9z" />
-        </svg>
-      </button>
+      <WatchlistButton
+        id={company.id}
+        name={company.name}
+        watched={watched}
+        onToggle={onToggleWatch}
+      />
 
       <div className="company">
         <Logo company={company} />
         <div className="company__text">
-          <span className="company__name">{company.name}</span>
+          <span className="company__line">
+            <span className="company__name">{company.name}</span>
+            <SignalTags company={company} max={1} />
+          </span>
           {company.tagline && <span className="company__tagline">{company.tagline}</span>}
         </div>
       </div>
 
       <div className="cell cell--text col-sector">{company.sector ?? '—'}</div>
 
-      <div className="cell cell--text cell--dim col-batch">
-        {company.batch ?? (company.origin === 'custom' ? 'Non-YC' : '—')}
+      <div className="cell col-stage">
+        <StageBadge company={company} />
       </div>
 
-      <div
-        className={`cell cell--right num col-team${company.headcount ? '' : ' cell--absent'}`}
-      >
-        {company.headcount ? plain(company.headcount) : '—'}
+      <div className="cell cell--right num col-raised">
+        {company.totalRaised ? (
+          <span title={`Across ${company.roundCount ?? 1} SEC filing(s)`}>
+            {compactMoney(company.totalRaised)}
+          </span>
+        ) : (
+          <span className="cell--absent">—</span>
+        )}
       </div>
 
-      <div className="cell cell--momentum col-momentum">
-        <div className="cell__bar">
-          <MomentumBar momentum={company.momentum} height={6} showEmptyTrack={false} />
-        </div>
-        <span className={`num cell__score${score ? '' : ' cell--absent'}`}>
-          {score ? score.toFixed(0) : '—'}
-        </span>
+      <div className="cell col-growth">
+        <GrowthCell company={company} />
       </div>
 
-      <div
-        className={`cell cell--right num col-signals${company.signalCount ? '' : ' cell--absent'}`}
-      >
-        {company.signalCount ? compact(company.signalCount) : '—'}
+      <div className="cell cell--text cell--dim col-location">{location ?? '—'}</div>
+
+      <div className="cell cell--right col-funded">
+        {company.lastRound?.date ? (
+          <span className="cell--dim" title={formatDate(company.lastRound.date)}>
+            {relativeDays(company.lastRound.date)}
+          </span>
+        ) : (
+          <span className="cell--absent">—</span>
+        )}
+      </div>
+
+      <div className="cell cell--right col-momentum">
+        <MomentumScore company={company} />
       </div>
     </div>
   )
@@ -200,7 +222,6 @@ function Row({
 
 function Logo({ company }: { company: Company }) {
   const [failed, setFailed] = useState(false)
-
   if (!company.logo || failed) {
     return <div className="company__logo company__logo--fallback">{initials(company.name)}</div>
   }

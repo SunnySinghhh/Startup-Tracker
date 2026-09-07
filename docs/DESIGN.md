@@ -105,6 +105,41 @@ empty state that *explains the mechanism* rather than rendering empty axes:
 This is the visual expression of the same principle the scoring model follows:
 absence of evidence is shown as absence, never as a zero.
 
+## What the data can and can't support
+
+The brief for this redesign asked for several metrics no free source provides.
+Rather than render them from estimates, they are omitted and the interface says
+so where a user would otherwise wonder:
+
+| Asked for | Status |
+|---|---|
+| Employee count, headcount growth, sparklines | **Available** — two years of weekly history, recovered from the upstream source's git log |
+| Funding stage, total raised, round dates | **Available** for the 484 companies with SEC filings; stage is *inferred* and labelled |
+| Open-role counts | Not available — the source gives a hiring boolean, not a count |
+| Lead investors, valuations | Not available — Form D carries neither |
+| Employee composition by function | Not available |
+| Product launches, leadership hires | Not available |
+
+Two rules follow from this. A missing value renders as `—`, never as `0` or a
+plausible default. And absence is labelled where it could be misread: a company
+with no SEC filing is not tagged "Bootstrapped", because the far more likely
+explanation is that it is early-stage or non-US.
+
+### Honest growth figures
+
+Headcount is a step function, so the value "90 days ago" is the last
+observation at or before that date. Two consequences are surfaced rather than
+hidden:
+
+- A company too young for a window simply doesn't get one — falling back to its
+  earliest reading would overstate every young company.
+- When a figure rests on a reading much older than its window, it is marked
+  `stale` and the anchor date is shown on hover.
+
+The upstream source has an 11-week gap in early 2026. Carry-forward semantics
+mean windows spanning it stay correct rather than silently comparing against a
+reading from the far side.
+
 ## Performance
 
 - The index is ~3.1 MB raw / ~590 KB gzipped for 6,209 companies. Nulls, empty

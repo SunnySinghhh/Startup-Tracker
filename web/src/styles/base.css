@@ -226,47 +226,52 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* ---- Table grid ----------------------------------------------------------
    The template lives here rather than inline so media queries can drop
-   columns. A column gap is essential: without one the right-aligned Team
-   figure butted straight against the momentum bar and read as a single
-   run-together value.
+   columns. A column gap is essential: without one the right-aligned figures
+   butt against the next column and read as one run-together value.
 
-   Hides are scoped to `.thead`/`.row` because `.th { display: flex }` is
-   declared later in this file and would otherwise win at equal specificity.
+   Hides are scoped to `.thead`/`.row` because `.th` sets display:flex later in
+   this file and would otherwise win at equal specificity.
    ------------------------------------------------------------------------ */
 
 .thead,
 .row {
   display: grid;
-  grid-template-columns: 28px minmax(170px, 2.4fr) 124px 96px 56px 136px 48px;
+  grid-template-columns:
+    28px minmax(190px, 2.2fr) 104px 92px 74px 168px 126px 82px 46px;
   column-gap: var(--space-4);
   align-items: center;
 }
 
-/* Narrow enough that the fixed columns no longer fit beside the filter rail:
-   drop the least informative ones, widest-first. */
+/* Columns drop widest-and-least-essential first as space tightens. */
+@media (max-width: 1400px) {
+  .thead, .row { grid-template-columns: 28px minmax(190px, 2.2fr) 104px 92px 74px 168px 82px 46px; }
+  .thead .col-location, .row .col-location { display: none; }
+}
 @media (max-width: 1240px) {
-  .thead, .row { grid-template-columns: 28px minmax(170px, 2.4fr) 124px 96px 56px 136px; }
-  .thead .col-signals, .row .col-signals { display: none; }
+  .thead, .row { grid-template-columns: 28px minmax(180px, 2.2fr) 104px 92px 74px 164px 46px; }
+  .thead .col-funded, .row .col-funded { display: none; }
 }
 @media (max-width: 1090px) {
-  .thead, .row { grid-template-columns: 28px minmax(160px, 2.4fr) 118px 56px 130px; }
-  .thead .col-batch, .row .col-batch { display: none; }
+  .thead, .row { grid-template-columns: 28px minmax(170px, 2.2fr) 88px 72px 156px 46px; }
+  .thead .col-sector, .row .col-sector { display: none; }
 }
 
-/* Below this the filter rail is hidden, so the full width is free again. */
+/* Below this the filter rail is hidden, so the width is free again. */
 @media (max-width: 960px) {
-  .thead, .row { grid-template-columns: 28px minmax(170px, 2.4fr) 124px 96px 56px 136px 48px; }
-  .thead .col-batch { display: flex; }
-  .row .col-batch { display: block; }
-  .thead .col-signals { display: flex; }
-  .row .col-signals { display: block; }
+  .thead, .row {
+    grid-template-columns: 28px minmax(190px, 2.2fr) 104px 92px 74px 168px 126px 82px 46px;
+  }
+  .thead .col-location, .thead .col-funded, .thead .col-sector { display: flex; }
+  .row .col-location, .row .col-funded, .row .col-sector { display: block; }
 }
 
-@media (max-width: 720px) {
-  .thead, .row { grid-template-columns: 28px minmax(150px, 2.4fr) 56px 130px; }
+@media (max-width: 780px) {
+  .thead, .row { grid-template-columns: 28px minmax(150px, 2fr) 88px 132px; }
   .thead .col-sector, .row .col-sector,
-  .thead .col-batch, .row .col-batch,
-  .thead .col-signals, .row .col-signals { display: none; }
+  .thead .col-raised, .row .col-raised,
+  .thead .col-location, .row .col-location,
+  .thead .col-funded, .row .col-funded { display: none; }
+  .row { height: auto; min-height: var(--row-height); padding-top: var(--space-2); padding-bottom: var(--space-2); }
 }
 
 .thead {

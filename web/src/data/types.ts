@@ -26,6 +26,29 @@ export interface Momentum {
   components?: MomentumComponents
 }
 
+/** One growth window. Absent entirely when the company has no observation old
+    enough to anchor it — never zero-filled. */
+export interface GrowthWindow {
+  from: number
+  to: number
+  delta: number
+  pct: number
+  /** When the anchoring observation was actually taken. */
+  anchorDate: string
+  anchorAgeDays: number
+  /** True when that reading is much older than the window it anchors, so the
+      figure is correct but rests on carried-forward data. */
+  stale: boolean
+}
+
+export type GrowthWindows = Partial<Record<'d30' | 'd90' | 'd180' | 'd365', GrowthWindow>>
+
+export interface LastRound {
+  date: string
+  stage?: string | null
+  amount?: number | null
+}
+
 export interface Company {
   id: string
   name: string
@@ -53,6 +76,15 @@ export interface Company {
   historyPoints?: number
   fundingCount?: number
   momentum?: Momentum
+  growth?: GrowthWindows
+  /** Downsampled headcount series for the inline sparkline. Omitted when flat. */
+  spark?: number[]
+  headcountAsOf?: string
+  observations?: number
+  fundingStage?: string
+  totalRaised?: number
+  roundCount?: number
+  lastRound?: LastRound
 }
 
 export interface Meta {

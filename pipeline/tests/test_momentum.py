@@ -62,7 +62,9 @@ def test_a_single_binary_signal_cannot_reach_the_top_of_the_scale(conn):
 
 
 def test_more_evidence_outranks_a_single_signal(conn):
-    _snapshot(conn, TODAY - timedelta(days=80), headcount=100)
+    # Must span at least the 90-day window: an 80-day history has no 90-day
+    # growth, and the model now declines to call a shorter span one.
+    _snapshot(conn, TODAY - timedelta(days=100), headcount=100)
     _snapshot(conn, TODAY, headcount=150, is_hiring=1)
     row = _score(conn)
 
@@ -76,6 +78,31 @@ def test_headcount_growth_needs_two_observations(conn):
     _snapshot(conn, TODAY, headcount=100)
     row = _score(conn)
     assert row["headcount_growth_90d"] is None, "one point is not a trend"
+
+
+def test_history_shorter_than_the_window_earns_no_growth_credit(conn):
+    """80 days of history is not 90-day growth."""
+    _snapshot(conn, TODAY - timedelta(days=80), headcount=100)
+    _snapshot(conn, TODAY, headcount=150)
+    assert _score(conn)["headcount_growth_90d"] is None
+
+
+def test_small_teams_do_not_outrank_large_ones_on_percentage(conn):
+    """2 -> 5 employees is +150% but is not a hiring story.
+
+    Before damping, moves like this dominated the entire ranking.
+    """
+    _snapshot(conn, TODAY - timedelta(days=100), headcount=2)
+    _snapshot(conn, TODAY, headcount=5)
+    tiny = _score(conn)["score"]
+
+    conn.execute("DELETE FROM metric_snapshots")
+    conn.execute("DELETE FROM momentum")
+    _snapshot(conn, TODAY - timedelta(days=100), headcount=60)
+    _snapshot(conn, TODAY, headcount=90)
+    big = _score(conn)["score"]
+
+    assert big > tiny, "a 60 -> 90 move must outrank 2 -> 5"
 
 
 def test_unmeasured_components_are_null_not_zero(conn):

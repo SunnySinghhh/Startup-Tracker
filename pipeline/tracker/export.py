@@ -19,7 +19,7 @@ import logging
 from collections import Counter
 from datetime import date
 
-from . import db, paths, store
+from . import db, growth, paths, store
 from .momentum import WEIGHTS
 
 log = logging.getLogger(__name__)
@@ -57,6 +57,39 @@ def _jloads(value, default):
         return default
 
 
+def _funding_summary(conn) -> dict[str, dict]:
+    """Per-company funding rollup: total raised, latest round, round count.
+
+    Computed once for the whole table rather than per row — the directory shows
+    this for every company, and a per-row query over 4,500 companies is the
+    difference between an export that takes a second and one that takes a
+    minute.
+    """
+    rows = conn.execute(
+        """
+        SELECT company_id, round_type, amount_raised, announced_date
+        FROM funding_rounds ORDER BY company_id, announced_date
+        """
+    ).fetchall()
+
+    out: dict[str, dict] = {}
+    for r in rows:
+        entry = out.setdefault(
+            r["company_id"],
+            {"totalRaised": 0.0, "rounds": 0, "stage": None, "lastRound": None},
+        )
+        entry["totalRaised"] += r["amount_raised"] or 0.0
+        entry["rounds"] += 1
+        if r["announced_date"]:
+            entry["stage"] = r["round_type"]
+            entry["lastRound"] = {
+                "date": r["announced_date"],
+                "stage": r["round_type"],
+                "amount": r["amount_raised"],
+            }
+    return out
+
+
 def _index_rows(conn) -> list[dict]:
     rows = conn.execute(
         """
@@ -83,6 +116,9 @@ def _index_rows(conn) -> list[dict]:
         ORDER BY c.name COLLATE NOCASE
         """
     ).fetchall()
+
+    funding = _funding_summary(conn)
+    today = date.today()
 
     out = []
     for r in rows:
@@ -135,12 +171,47 @@ def _index_rows(conn) -> list[dict]:
                 "notes": r["notes"],
                 "headcount": r["headcount"],
                 "isHiring": bool(r["is_hiring"]) if r["is_hiring"] is not None else None,
+                **_growth_fields(conn, r["id"], today),
+                **_funding_fields(funding.get(r["id"])),
                 "signalCount": r["signal_count"] or None,
                 "historyPoints": r["history_points"] or None,
                 "fundingCount": r["funding_count"] or None,
                 "momentum": momentum,
             })
         )
+    return out
+
+
+def _growth_fields(conn, company_id: str, today: date) -> dict:
+    """Growth windows and the inline sparkline series."""
+    g = growth.compute(conn, company_id, today)
+    windows = g.get("windows") or {}
+    fields: dict = {}
+    if windows:
+        fields["growth"] = windows
+    spark = g.get("spark") or []
+    # A flat line carries no information in a 60px sparkline.
+    if len(spark) > 1 and len(set(spark)) > 1:
+        fields["spark"] = spark
+    if g.get("latest"):
+        fields["headcountAsOf"] = g["latest"]
+    if g.get("observations"):
+        fields["observations"] = g["observations"]
+    return fields
+
+
+def _funding_fields(summary: dict | None) -> dict:
+    if not summary:
+        return {}
+    out: dict = {}
+    if summary["totalRaised"]:
+        out["totalRaised"] = round(summary["totalRaised"])
+    if summary["stage"]:
+        out["fundingStage"] = summary["stage"]
+    if summary["rounds"]:
+        out["roundCount"] = summary["rounds"]
+    if summary["lastRound"]:
+        out["lastRound"] = summary["lastRound"]
     return out
 
 

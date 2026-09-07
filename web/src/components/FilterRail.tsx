@@ -12,6 +12,14 @@ interface Props {
   watchlistSize: number
 }
 
+/** Empty input means "no bound", not zero. */
+function numberOrNull(value: string): number | null {
+  const trimmed = value.trim()
+  if (trimmed === '') return null
+  const parsed = Number(trimmed)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 export function FilterRail({ meta, filters, onChange, watchlistSize }: Props) {
   const active = countActiveFilters(filters)
 
@@ -132,7 +140,131 @@ export function FilterRail({ meta, filters, onChange, watchlistSize }: Props) {
       </div>
 
       <div className="rail__group">
-        <div className="rail__label">Stage</div>
+        <div className="rail__label">
+          Funding stage
+          {filters.fundingStages.size > 0 && (
+            <span className="rail__count">{filters.fundingStages.size}</span>
+          )}
+        </div>
+        {['Seed', 'Series A', 'Series B', 'Series C', 'Series D+', 'Acquired'].map((stage) => (
+          <label className="check" key={stage}>
+            <input
+              type="checkbox"
+              checked={filters.fundingStages.has(stage)}
+              onChange={() => {
+                const next = new Set(filters.fundingStages)
+                if (next.has(stage)) next.delete(stage)
+                else next.add(stage)
+                onChange({ ...filters, fundingStages: next })
+              }}
+            />
+            {stage}
+          </label>
+        ))}
+        <p className="rail__hint">
+          From SEC filings; companies with none are excluded rather than assumed bootstrapped.
+        </p>
+      </div>
+
+      <div className="rail__group">
+        <div className="rail__label">Employees</div>
+        <div className="rail__row">
+          <input
+            className="input input--sm"
+            type="number"
+            min={0}
+            placeholder="Min"
+            value={filters.headcount.min ?? ''}
+            onChange={(e) =>
+              onChange({
+                ...filters,
+                headcount: { ...filters.headcount, min: numberOrNull(e.target.value) },
+              })
+            }
+            aria-label="Minimum employees"
+          />
+          <span className="rail__dash">–</span>
+          <input
+            className="input input--sm"
+            type="number"
+            min={0}
+            placeholder="Max"
+            value={filters.headcount.max ?? ''}
+            onChange={(e) =>
+              onChange({
+                ...filters,
+                headcount: { ...filters.headcount, max: numberOrNull(e.target.value) },
+              })
+            }
+            aria-label="Maximum employees"
+          />
+        </div>
+      </div>
+
+      <div className="rail__group">
+        <div className="rail__label">Headcount growth</div>
+        <select
+          className="select"
+          value={filters.growthMin ?? ''}
+          onChange={(e) => onChange({ ...filters, growthMin: numberOrNull(e.target.value) })}
+          aria-label="Minimum headcount growth"
+        >
+          <option value="">Any</option>
+          <option value="0">Growing (&gt;0%)</option>
+          <option value="20">&gt; 20%</option>
+          <option value="50">&gt; 50%</option>
+          <option value="100">&gt; 100%</option>
+        </select>
+      </div>
+
+      <div className="rail__group">
+        <div className="rail__label">Total raised</div>
+        <select
+          className="select"
+          value={filters.raisedMin ?? ''}
+          onChange={(e) => onChange({ ...filters, raisedMin: numberOrNull(e.target.value) })}
+          aria-label="Minimum total raised"
+        >
+          <option value="">Any</option>
+          <option value="1000000">$1M+</option>
+          <option value="5000000">$5M+</option>
+          <option value="20000000">$20M+</option>
+          <option value="100000000">$100M+</option>
+        </select>
+      </div>
+
+      <div className="rail__group">
+        <div className="rail__label">Last funded</div>
+        <select
+          className="select"
+          value={filters.fundedWithinDays ?? ''}
+          onChange={(e) => onChange({ ...filters, fundedWithinDays: numberOrNull(e.target.value) })}
+          aria-label="Funded within"
+        >
+          <option value="">Any time</option>
+          <option value="90">Last 90 days</option>
+          <option value="180">Last 6 months</option>
+          <option value="365">Last year</option>
+        </select>
+      </div>
+
+      <div className="rail__group">
+        <div className="rail__label">Momentum score</div>
+        <select
+          className="select"
+          value={filters.momentumMin ?? ''}
+          onChange={(e) => onChange({ ...filters, momentumMin: numberOrNull(e.target.value) })}
+          aria-label="Minimum momentum score"
+        >
+          <option value="">Any</option>
+          <option value="12">12+ (moderate)</option>
+          <option value="25">25+ (high)</option>
+          <option value="40">40+ (very high)</option>
+        </select>
+      </div>
+
+      <div className="rail__group">
+        <div className="rail__label">YC stage</div>
         {meta.facets.stages.map((stage) => (
           <label className="check" key={stage}>
             <input

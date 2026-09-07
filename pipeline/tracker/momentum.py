@@ -27,6 +27,8 @@ import math
 import sqlite3
 from datetime import UTC, date, datetime, timedelta
 
+from . import growth
+
 # Relative weights. Renormalised over whichever components have data.
 WEIGHTS = {
     "headcount_growth": 0.35,
@@ -41,34 +43,40 @@ def _clamp(value: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return max(lo, min(hi, value))
 
 
+# Below this headcount, percentage growth is dominated by noise: a company
+# going 2 -> 5 is +150%, which outranks 60 -> 90 on percentage alone while
+# saying far less about momentum. Growth is scaled toward full credit as the
+# base approaches this size.
+_GROWTH_BASE_FOR_FULL_CREDIT = 20
+
+
 def _headcount_growth(conn: sqlite3.Connection, company_id: str, today: date):
     """Percentage headcount change over the trailing 90 days.
 
-    Returns (normalised_0_1, raw_pct, absolute_delta) or None when there isn't
-    enough history — which is the expected state until the scheduled job has
-    been running for a few months.
+    Returns (normalised_0_1, raw_pct, absolute_delta) or None when the company
+    has no observation old enough to anchor the window.
+
+    Reads the series as a step function via ``growth``, rather than taking the
+    oldest row inside the window: with change-only storage a flat company has
+    no row inside the window at all, and its growth is 0%, not unknown.
     """
-    window_start = (today - timedelta(days=90)).isoformat()
-    rows = conn.execute(
-        """
-        SELECT snapshot_date, headcount FROM metric_snapshots
-        WHERE company_id = ? AND headcount IS NOT NULL AND snapshot_date >= ?
-        ORDER BY snapshot_date
-        """,
-        (company_id, window_start),
-    ).fetchall()
-
-    if len(rows) < 2:
+    windows = growth.compute(conn, company_id, today).get("windows") or {}
+    window = windows.get("d90")
+    if not window:
         return None
 
-    first, last = rows[0]["headcount"], rows[-1]["headcount"]
-    if not first:
+    base = window["from"]
+    if not base:
         return None
 
-    delta = last - first
-    pct = delta / first
+    pct = window["pct"] / 100.0
+    delta = window["delta"]
+
     # A 50% gain over 90 days is exceptional; treat that as the top of the scale.
-    return _clamp(pct / 0.5), pct, delta
+    score = _clamp(pct / 0.5)
+    # Damp small-base growth so a 2 -> 5 move can't outrank a 60 -> 90 one.
+    score *= min(1.0, base / _GROWTH_BASE_FOR_FULL_CREDIT)
+    return score, pct, delta
 
 
 def _press_score(conn: sqlite3.Connection, company_id: str, today: date) -> float | None:

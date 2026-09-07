@@ -17,6 +17,15 @@ export function signedPercent(value: number | null | undefined, digits = 1): str
   return `${sign}${value.toFixed(digits)}%`
 }
 
+/** Dense money for tables: $750K, $18M, $1.2B. */
+export function compactMoney(amount?: number | null): string {
+  if (amount == null || !Number.isFinite(amount)) return '—'
+  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`
+  if (amount >= 1_000_000) return `$${Math.round(amount / 1_000_000)}M`
+  if (amount >= 1_000) return `$${Math.round(amount / 1_000)}K`
+  return `$${Math.round(amount)}`
+}
+
 export function money(amount?: number | null, currency = 'USD'): string {
   if (amount == null || !Number.isFinite(amount)) return '—'
   const symbol = currency === 'USD' ? '$' : ''
