@@ -122,6 +122,10 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
                          "source": "github", **stats})
 
     if rows:
+        # Same change-only rule as the directory ingest.
+        known = store.latest_signatures(paths.SNAPSHOTS)
+        rows = store.drop_unchanged(rows, known)
+    if rows:
         store.upsert_partition(
             paths.SNAPSHOTS, today, rows, key=("company_id", "snapshot_date"), merge=True
         )

@@ -63,6 +63,29 @@ def cmd_ingest(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_backfill_history(args: argparse.Namespace) -> int:
+    from .sources import yc_history
+
+    _report("history backfill complete", yc_history.run(limit=args.limit))
+    return 0
+
+
+def cmd_compact(args: argparse.Namespace) -> int:
+    from . import paths, store
+
+    before, after = store.compact(paths.SNAPSHOTS)
+    _report(
+        "compaction complete",
+        {
+            "rows_before": before,
+            "rows_after": after,
+            "removed": before - after,
+            "kept_pct": f"{after / max(1, before) * 100:.1f}%",
+        },
+    )
+    return 0
+
+
 def cmd_build(args: argparse.Namespace) -> int:
     from . import build
 
@@ -107,6 +130,21 @@ def build_parser() -> argparse.ArgumentParser:
     ing.add_argument("--github", action="store_true", help="include GitHub enrichment")
     ing.add_argument("--github-limit", type=int, default=60, help="max companies to check")
     ing.set_defaults(func=cmd_ingest)
+
+    h = sub.add_parser(
+        "backfill-history",
+        help="recover ~2 years of headcount from the YC source's git history",
+        parents=[common],
+    )
+    h.add_argument("--limit", type=int, help="only the N most recent weekly points")
+    h.set_defaults(func=cmd_backfill_history)
+
+    k = sub.add_parser(
+        "compact",
+        help="drop repeated snapshot rows, keeping only value changes",
+        parents=[common],
+    )
+    k.set_defaults(func=cmd_compact)
 
     b = sub.add_parser("build", help="rebuild SQLite + momentum from data/", parents=[common])
     b.set_defaults(func=cmd_build)

@@ -99,11 +99,17 @@ def ingest_directory(today: date | None = None) -> dict[str, int]:
     merged = _merge_directory(yc_companies + custom_companies, today)
     store.write_json(paths.COMPANIES, merged)
 
+    # Store transitions only. Writing an identical row for every company every
+    # day is 95% repetition and would add ~174MB of git history a year; readers
+    # carry the last value forward. `last_seen` above still records the check.
+    known = store.latest_signatures(paths.SNAPSHOTS)
+    changed = store.drop_unchanged(yc_snapshots, known)
     written = store.upsert_partition(
-        paths.SNAPSHOTS, today, yc_snapshots, key=("company_id", "snapshot_date"), merge=True
+        paths.SNAPSHOTS, today, changed, key=("company_id", "snapshot_date"), merge=True
     )
 
     return {
+        "snapshots_unchanged": len(yc_snapshots) - len(changed),
         "companies_total": len(merged),
         "companies_excluded_older": len(all_yc) - len(yc_companies),
         "companies_yc": len(yc_companies),

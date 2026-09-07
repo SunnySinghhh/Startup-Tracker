@@ -106,3 +106,87 @@ def write_json(path: Path, payload: Any, *, compact: bool = False) -> None:
     else:
         text = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     path.write_text(text, encoding="utf-8")
+
+
+# --- Change-only snapshot storage ------------------------------------------
+#
+# Headcount is a step function: it holds its value until it changes. Recording
+# an identical row for every company every day stored ~324,000 observations
+# where ~16,500 carried information — 95% of it repetition, and about 174MB of
+# git growth a year. Only transitions are kept; readers carry the last value
+# forward (see tracker.growth).
+#
+# Note this makes a snapshot date mean "when the value changed", not "when we
+# last looked". Freshness of the *check* lives on the company record's
+# ``last_seen``, so both questions stay answerable.
+
+# Fields whose change makes an observation worth storing.
+TRACKED_FIELDS = (
+    "headcount", "is_hiring", "github_stars", "github_contributors",
+    "github_commits_30d", "github_forks", "github_repos", "press_mentions_30d",
+)
+
+
+def _signature(row: dict[str, Any]) -> tuple:
+    return tuple(row.get(f) for f in TRACKED_FIELDS)
+
+
+def latest_signatures(root: Path) -> dict[str, tuple]:
+    """The most recent stored signature per company."""
+    latest: dict[str, tuple[str, tuple]] = {}
+    for row in read_all(root):
+        company_id = row.get("company_id")
+        when = row.get("snapshot_date")
+        if not company_id or not when:
+            continue
+        prior = latest.get(company_id)
+        if prior is None or when >= prior[0]:
+            latest[company_id] = (when, _signature(row))
+    return {cid: sig for cid, (_, sig) in latest.items()}
+
+
+def drop_unchanged(rows: Iterable[dict[str, Any]], known: dict[str, tuple]) -> list[dict[str, Any]]:
+    """Keep only rows whose tracked values differ from the last stored one."""
+    out = []
+    for row in rows:
+        company_id = row.get("company_id")
+        if company_id is None:
+            continue
+        if known.get(company_id) == _signature(row):
+            continue
+        out.append(row)
+    return out
+
+
+def compact(root: Path) -> tuple[int, int]:
+    """Rewrite every partition keeping only transitions plus each latest row.
+
+    The latest row per company is always kept so "current value" never has to
+    be inferred from an arbitrarily old transition.
+    """
+    all_rows = list(read_all(root))
+    by_company: dict[str, list[dict[str, Any]]] = {}
+    for row in all_rows:
+        by_company.setdefault(row["company_id"], []).append(row)
+
+    keep: list[dict[str, Any]] = []
+    for rows in by_company.values():
+        rows.sort(key=lambda r: r["snapshot_date"])
+        previous = object()
+        for index, row in enumerate(rows):
+            signature = _signature(row)
+            if signature != previous or index == len(rows) - 1:
+                keep.append(row)
+                previous = signature
+
+    partitions: dict[str, list[dict[str, Any]]] = {}
+    for row in keep:
+        partitions.setdefault(row["snapshot_date"][:7], []).append(row)
+
+    for path in root.glob("*.jsonl"):
+        path.unlink()
+    for month, rows in partitions.items():
+        rows.sort(key=lambda r: (r["company_id"], r["snapshot_date"]))
+        write_jsonl(root / f"{month}.jsonl", rows)
+
+    return len(all_rows), len(keep)
