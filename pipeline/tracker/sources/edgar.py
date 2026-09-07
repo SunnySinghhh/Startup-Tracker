@@ -7,9 +7,13 @@ free, requires no key, and covers everyone raising in the US.
 Its limits are worth being precise about, because they bound what this tracker
 can honestly claim:
   * It is a *lagging* indicator — filed up to 15 days after the first sale.
-  * It carries no valuation, and the amount is "total offering", not always the
-    amount actually raised.
+  * It carries no valuation and never states a round name.
   * Non-US companies never appear.
+
+The full-text search index does not include dollar amounts, but the filing's
+own ``primary_doc.xml`` does — both the total offering and the amount actually
+sold. That costs one extra request per filing and is well worth it: it is the
+difference between a funding view that shows dates and one that shows money.
 
 Matching is the hard part. EDGAR full-text search matches inside the filing
 document, so a query for "Rippling" returns filings from unrelated entities
@@ -34,6 +38,7 @@ log = logging.getLogger(__name__)
 
 FULL_TEXT_SEARCH = "https://efts.sec.gov/LATEST/search-index"
 SUBMISSIONS = "https://data.sec.gov/submissions/CIK{cik:0>10}.json"
+PRIMARY_DOC = "https://www.sec.gov/Archives/edgar/data/{cik}/{accession}/primary_doc.xml"
 
 # SEC guidance is 10 req/sec; stay comfortably under it.
 _LIMITER = http.RateLimiter(per_second=7.0)
@@ -133,6 +138,116 @@ def search_form_d(client, company_name: str) -> list[dict[str, Any]]:
     return accepted
 
 
+_ISO_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def _xml_value(xml: str, tag: str) -> str | None:
+    """Read a Form D field, unwrapping the nested <value> some fields use.
+
+    Form D wraps several fields one level deeper — ``<dateOfFirstSale><value>
+    2024-05-15</value></dateOfFirstSale>`` — so a naive inner-text match returns
+    the child markup rather than the value.
+    """
+    match = re.search(rf"<{tag}>(.*?)</{tag}>", xml, re.S)
+    if not match:
+        return None
+    inner = match.group(1).strip()
+    nested = re.search(r"<value>(.*?)</value>", inner, re.S)
+    if nested:
+        inner = nested.group(1).strip()
+    # Anything still carrying markup is a structure we don't model.
+    return None if "<" in inner else (inner or None)
+
+
+def _iso_date(value: str | None) -> str | None:
+    """Accept only a well-formed ISO date; anything else is not a date."""
+    if not value:
+        return None
+    match = _ISO_DATE_RE.search(value)
+    return match.group(0) if match else None
+
+
+def fetch_filing_amounts(client, cik: str, accession: str) -> dict[str, Any]:
+    """Read the offering amounts out of a filing's primary_doc.xml.
+
+    Returns empty on any failure — a filing without amounts is still a useful
+    funding event, so this must never abort the run.
+    """
+    url = PRIMARY_DOC.format(
+        cik=str(cik).lstrip("0"), accession=accession.replace("-", "")
+    )
+    resp = http.get_with_retry(client, url, limiter=_LIMITER)
+    if resp is None or resp.status_code != 200:
+        return {}
+
+    xml = resp.text
+
+    def number(tag: str) -> float | None:
+        raw = _xml_value(xml, tag)
+        if raw is None:
+            return None
+        try:
+            return float(raw)
+        except ValueError:
+            return None
+
+    sold = number("totalAmountSold")
+    offering = number("totalOfferingAmount")
+    return {
+        # "Sold" is what was actually raised; "offering" is what was sought.
+        # Prefer sold, fall back to offering, and record which was used.
+        "amount_raised": sold if sold else offering,
+        "amount_basis": "sold" if sold else ("offering" if offering else None),
+        "total_offering": offering,
+        "date_of_first_sale": _iso_date(_xml_value(xml, "dateOfFirstSale")),
+        "entity_name_xml": _xml_value(xml, "entityName"),
+    }
+
+
+# Amount bands used to infer a stage label. Form D never states a round name,
+# so this is a heuristic — surfaced as inferred everywhere it appears.
+_STAGE_BANDS = (
+    (3_000_000, "Seed"),
+    (18_000_000, "Series A"),
+    (45_000_000, "Series B"),
+    (120_000_000, "Series C"),
+    (float("inf"), "Series D+"),
+)
+
+STAGE_ORDER = ["Seed", "Series A", "Series B", "Series C", "Series D+"]
+
+
+def _stage_from_amount(amount: float | None) -> str | None:
+    if not amount:
+        return None
+    for ceiling, label in _STAGE_BANDS:
+        if amount < ceiling:
+            return label
+    return "Series D+"
+
+
+def _assign_stages(filings: list[dict[str, Any]]) -> None:
+    """Label each filing with an inferred stage, oldest first.
+
+    Amount bands alone can go backwards (a company raising $30M then $10M),
+    which reads as regressing through stages. Ordering by date and forcing the
+    label to never move backwards produces a sane progression.
+    """
+    ordered = sorted(filings, key=lambda f: f.get("announced_date") or "")
+    highest = -1
+    for position, filing in enumerate(ordered):
+        by_amount = _stage_from_amount(filing.get("amount_raised"))
+        if by_amount is not None:
+            index = STAGE_ORDER.index(by_amount)
+        else:
+            # No amount: fall back to filing order, capped at the ladder length.
+            index = min(position, len(STAGE_ORDER) - 1)
+        index = max(index, highest)
+        highest = index
+        filing["round_type"] = STAGE_ORDER[index]
+        filing["round_type_inferred"] = True
+
+
 def _round_type_from_history(index: int, total: int) -> str:
     """Best-effort stage label.
 
@@ -222,7 +337,9 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
             matched_companies += 1
 
             hits.sort(key=lambda h: h.get("filed") or "", reverse=True)
-            for index, hit in enumerate(hits):
+            company_rounds: list[dict[str, Any]] = []
+
+            for hit in hits:
                 digest = hashlib.sha1(
                     f"{company_id}|{hit['accession']}".encode()
                 ).hexdigest()[:16]
@@ -230,14 +347,23 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
                 if round_id in existing:
                     continue
                 cik = hit["ciks"][0] if hit["ciks"] else None
-                new_rounds.append(
+
+                amounts = (
+                    fetch_filing_amounts(client, cik, hit["accession"]) if cik else {}
+                )
+
+                company_rounds.append(
                     {
                         "id": round_id,
                         "company_id": company_id,
-                        "round_type": _round_type_from_history(index, len(hits)),
-                        "amount_raised": None,  # not in the search index
+                        "round_type": None,  # assigned below, across the set
+                        "amount_raised": amounts.get("amount_raised"),
+                        "amount_basis": amounts.get("amount_basis"),
+                        "total_offering": amounts.get("total_offering"),
                         "currency": "USD",
-                        "announced_date": hit.get("filed"),
+                        "announced_date": amounts.get("date_of_first_sale")
+                        or hit.get("filed"),
+                        "filed_date": hit.get("filed"),
                         "lead_investor": None,
                         "other_investors": [],
                         "source_url": (
@@ -250,9 +376,12 @@ def run(today: date | None = None, limit: int = 60) -> dict[str, int]:
                         "cik": cik,
                         "accession_no": hit["accession"],
                         "entity_name": hit.get("entity"),
-                        "round_type_inferred": True,
                     }
                 )
+
+            # Stage labels depend on the whole set, so assign once per company.
+            _assign_stages(company_rounds)
+            new_rounds.extend(company_rounds)
 
     if new_rounds:
         with paths.FUNDING.open("a", encoding="utf-8") as fh:

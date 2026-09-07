@@ -1,7 +1,7 @@
 /** Loading the static JSON bundles. */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Company, CompanyDetail, Meta } from './types'
+import type { Company, CompanyDetail, FundingMatrix, Meta, RecentSignal } from './types'
 
 /** Vite injects the Pages sub-path here; data lives beside the built assets. */
 const BASE = import.meta.env.BASE_URL
@@ -60,6 +60,65 @@ export function useIndex(): DataState {
   }, [])
 
   return state
+}
+
+/**
+ * The cross-company signal feed shown on the overview.
+ *
+ * Loaded separately from the index so the (much larger) company payload isn't
+ * blocking the first meaningful paint of the landing page.
+ */
+export function useRecentSignals() {
+  const [signals, setSignals] = useState<RecentSignal[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`${BASE}data/recent-signals.json`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows: RecentSignal[]) => {
+        if (!cancelled) setSignals(rows)
+      })
+      .catch(() => {
+        if (!cancelled) setSignals([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return { signals, loading }
+}
+
+/** The funding matrix bundle, loaded only when that tab is opened. */
+export function useFundingMatrix(enabled: boolean) {
+  const [matrix, setMatrix] = useState<FundingMatrix | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!enabled || matrix) return
+    let cancelled = false
+    setLoading(true)
+    fetch(`${BASE}data/funding-matrix.json`)
+      .then((res) => (res.ok ? res.json() : { stages: [], rows: [] }))
+      .then((value: FundingMatrix) => {
+        if (!cancelled) setMatrix(value)
+      })
+      .catch(() => {
+        if (!cancelled) setMatrix({ stages: [], rows: [] })
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [enabled, matrix])
+
+  return { matrix, loading }
 }
 
 /**

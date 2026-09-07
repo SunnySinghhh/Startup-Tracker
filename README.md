@@ -1,8 +1,9 @@
 # Signal — a personal startup tracker
 
-A dashboard that watches ~6,200 startups for *leading* signals — headcount
-growth, hiring activity, press mentions, SEC filings, GitHub activity — and
-ranks what's heating up.
+A dashboard that watches ~4,500 startups (Y Combinator, 2019 onward, plus any
+company added by hand) for *leading* signals — headcount growth, hiring
+activity, press mentions, SEC filings, GitHub activity — and ranks what's
+moving.
 
 It runs entirely on free public data, costs nothing to operate, and deploys to
 GitHub Pages. A scheduled GitHub Action appends one observation per company per
@@ -31,7 +32,7 @@ into one place, and be explicit about how much you actually know.
 | **Headcount over time** | YC `team_size`, snapshotted daily | **Leading** | Free |
 | **Actively hiring** | YC `isHiring` flag | **Leading** | Free |
 | **Press mentions** | TechCrunch RSS | **Leading** | Free |
-| Private funding filings | SEC EDGAR Form D | Lagging | Free |
+| Private funding **amounts** | SEC EDGAR Form D XML | Lagging | Free |
 | **GitHub stars / repos** | GitHub REST API | **Leading** | Free |
 | Non-YC companies | `data/custom-companies.json`, hand-curated | Dimension | Free |
 
@@ -72,6 +73,21 @@ data/              committed: the observation history
 web/               React + TypeScript dashboard
 .github/workflows/ scheduled ingest, Pages deploy, CI
 ```
+
+## The interface
+
+Four tabs, one job each:
+
+| Tab | What it does |
+|---|---|
+| **Overview** | What the tracker knows right now: counts, top momentum, latest signals, sector mix |
+| **Companies** | The full directory — filter by sector, stage, status, batch; sort by any column |
+| **Funding** | Progression matrix: companies down the side, inferred stages across, dollars raised in the cells |
+| **About** | How everything works, and what the data can't tell you |
+
+The funding matrix leaves a cell **blank** where a company has no filing at
+that stage. A blank is not a zero — it means "not observed", which is the same
+principle the scoring model follows.
 
 ## The momentum score
 
@@ -144,7 +160,8 @@ To test ingestion immediately: **Actions → Ingest signals → Run workflow.**
 ## Adding companies outside YC
 
 Edit [`data/custom-companies.json`](data/custom-companies.json). Only `name` is
-required; everything else renders as unknown rather than breaking:
+required; everything else renders as unknown rather than breaking. Manually
+added companies are exempt from the 2019 cohort cut:
 
 ```json
 {
@@ -174,10 +191,12 @@ Worth knowing before trusting anything here:
   and surgical-products companies to Linear. The cost is real misses — Rippling
   files as "Rippling People Center Inc." and won't match. Pin those by hand in
   `data/edgar-cik-overrides.json`.
-- **Form D round labels are inferred** from filing order; the filing never
-  states a round name. The UI marks these with `?`.
-- **Form D carries no amounts** in the SEC full-text index, and no valuations
-  ever. Non-US companies never appear.
+- **Form D round labels are inferred** from amount bands and filing order; the
+  filing never states a round name. Every stage column says so.
+- **Form D carries no valuations, ever**, and non-US companies never appear.
+  Dollar amounts *are* available — they come from each filing's own
+  `primary_doc.xml` (`totalAmountSold`), not the full-text search index, which
+  has none.
 - **YC `launched_at` is a listing date**, not an incorporation date.
 - **GitHub orgs are never guessed** from company names — too many unrelated orgs
   collide. Declare them in `data/github-orgs.json`.

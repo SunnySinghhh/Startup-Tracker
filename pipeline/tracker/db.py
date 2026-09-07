@@ -88,6 +88,9 @@ CREATE TABLE IF NOT EXISTS funding_rounds (
     cik                 TEXT,
     accession_no        TEXT,
     round_type_inferred INTEGER DEFAULT 0,
+    amount_basis        TEXT,          -- 'sold' | 'offering'
+    total_offering      REAL,
+    filed_date          TEXT,
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 CREATE INDEX IF NOT EXISTS idx_funding_company ON funding_rounds(company_id, announced_date);

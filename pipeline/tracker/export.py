@@ -3,9 +3,10 @@
 GitHub Pages serves static files only, so the "API" is a set of pre-rendered
 JSON documents. The split matters for load time:
 
-  meta.json        facet values, counts, scoring weights  (small, always loaded)
-  index.json       one compact row per company            (drives list + filters)
-  details/<id>.json  history, signals, funding            (fetched on demand)
+  meta.json           facet values, counts, scoring weights  (small, always loaded)
+  index.json          one compact row per company         (drives list + filters)
+  recent-signals.json newest signals across all companies (the overview feed)
+  details/<id>.json   history, signals, funding           (fetched on demand)
 
 Only companies that actually have detail data get a detail file, so a fresh
 install ships a handful rather than 6,000 near-empty documents.
@@ -184,6 +185,111 @@ def _meta(conn, index: list[dict]) -> dict:
     }
 
 
+def _recent_signals(conn, limit: int = 60) -> list[dict]:
+    """Newest signals across the whole universe, joined to their company.
+
+    The overview needs a cross-company feed, which no per-company detail file
+    can answer without fetching thousands of them.
+    """
+    rows = conn.execute(
+        """
+        SELECT s.id, s.company_id, s.signal_type, s.signal_date, s.title,
+               s.source_url, s.source_type, c.name, c.logo_url, c.sector
+        FROM signals s JOIN companies c ON c.id = s.company_id
+        ORDER BY s.signal_date DESC, s.id
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    return [
+        {
+            "id": r["id"],
+            "companyId": r["company_id"],
+            "company": r["name"],
+            "logo": r["logo_url"],
+            "sector": r["sector"],
+            "type": r["signal_type"],
+            "date": r["signal_date"],
+            "title": r["title"],
+            "url": r["source_url"],
+            "source": r["source_type"],
+        }
+        for r in rows
+    ]
+
+
+def _sector_breakdown(index: list[dict]) -> list[dict]:
+    """Company counts per sector, for the overview's distribution chart."""
+    counts = Counter(c.get("sector") or "Unspecified" for c in index)
+    hiring = Counter(
+        c.get("sector") or "Unspecified" for c in index if c.get("isHiring")
+    )
+    return [
+        {"sector": sector, "companies": n, "hiring": hiring.get(sector, 0)}
+        for sector, n in counts.most_common()
+    ]
+
+
+FUNDING_STAGES = ["Seed", "Series A", "Series B", "Series C", "Series D+"]
+
+
+def _funding_matrix(conn) -> list[dict]:
+    """One row per company that has filings, with totals per inferred stage.
+
+    A company that never reached a stage simply has no entry for it, which the
+    UI renders as an empty cell — the absence is the information.
+    """
+    rows = conn.execute(
+        """
+        SELECT f.company_id, c.name, c.sector, c.logo_url, c.batch, c.origin,
+               f.round_type, f.amount_raised, f.announced_date, f.source_url,
+               f.amount_basis
+        FROM funding_rounds f JOIN companies c ON c.id = f.company_id
+        ORDER BY c.name COLLATE NOCASE, f.announced_date
+        """
+    ).fetchall()
+
+    companies: dict[str, dict] = {}
+    for r in rows:
+        entry = companies.setdefault(
+            r["company_id"],
+            {
+                "id": r["company_id"],
+                "company": r["name"],
+                "sector": r["sector"],
+                "logo": r["logo_url"],
+                "batch": r["batch"],
+                "origin": r["origin"],
+                "stages": {},
+                "total": 0.0,
+                "filings": 0,
+                "firstDate": None,
+                "lastDate": None,
+            },
+        )
+        stage = r["round_type"] or "Series D+"
+        amount = r["amount_raised"] or 0.0
+
+        cell = entry["stages"].setdefault(
+            stage, {"amount": 0.0, "filings": 0, "url": r["source_url"], "date": None}
+        )
+        cell["amount"] += amount
+        cell["filings"] += 1
+        if r["announced_date"] and (not cell["date"] or r["announced_date"] < cell["date"]):
+            cell["date"] = r["announced_date"]
+
+        entry["total"] += amount
+        entry["filings"] += 1
+        date = r["announced_date"]
+        if date:
+            if not entry["firstDate"] or date < entry["firstDate"]:
+                entry["firstDate"] = date
+            if not entry["lastDate"] or date > entry["lastDate"]:
+                entry["lastDate"] = date
+
+    return sorted(companies.values(), key=lambda e: -e["total"])
+
+
 def _details(conn, index: list[dict]) -> int:
     """Write a detail file per company that has something worth fetching."""
     detail_dir = paths.WEB_DATA / "details"
@@ -279,7 +385,21 @@ def run() -> dict[str, object]:
 
     index = _index_rows(conn)
     store.write_json(paths.WEB_DATA / "index.json", index, compact=True)
-    store.write_json(paths.WEB_DATA / "meta.json", _meta(conn, index))
+
+    meta = _meta(conn, index)
+    meta["sectorBreakdown"] = _sector_breakdown(index)
+    store.write_json(paths.WEB_DATA / "meta.json", meta)
+
+    recent = _recent_signals(conn)
+    store.write_json(paths.WEB_DATA / "recent-signals.json", recent, compact=True)
+
+    matrix = _funding_matrix(conn)
+    store.write_json(
+        paths.WEB_DATA / "funding-matrix.json",
+        {"stages": FUNDING_STAGES, "rows": matrix},
+        compact=True,
+    )
+
     detail_count = _details(conn, index)
 
     conn.close()
@@ -288,5 +408,7 @@ def run() -> dict[str, object]:
     return {
         "index_rows": len(index),
         "index_size_kb": index_kb,
+        "recent_signals": len(recent),
+        "funding_matrix_rows": len(matrix),
         "detail_files": detail_count,
     }

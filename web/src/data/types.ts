@@ -79,6 +79,27 @@ export interface Meta {
   }
   momentumWeights: Record<string, number>
   ycProfilePrefix: string
+  sectorBreakdown: SectorCount[]
+}
+
+export interface SectorCount {
+  sector: string
+  companies: number
+  hiring: number
+}
+
+/** A signal joined to its company, for the cross-company overview feed. */
+export interface RecentSignal {
+  id: string
+  companyId: string
+  company: string
+  logo?: string | null
+  sector?: string | null
+  type: string
+  date: string
+  title?: string | null
+  url?: string | null
+  source?: string | null
 }
 
 export interface HistoryPoint {
@@ -117,4 +138,31 @@ export interface CompanyDetail {
   history: HistoryPoint[]
   signals: Signal[]
   funding: FundingRound[]
+}
+
+/** A cell in the funding matrix. Absent entirely when a stage wasn't reached. */
+export interface FundingCell {
+  amount: number
+  filings: number
+  url?: string | null
+  date?: string | null
+}
+
+export interface FundingRow {
+  id: string
+  company: string
+  sector?: string | null
+  logo?: string | null
+  batch?: string | null
+  origin?: string | null
+  stages: Record<string, FundingCell>
+  total: number
+  filings: number
+  firstDate?: string | null
+  lastDate?: string | null
+}
+
+export interface FundingMatrix {
+  stages: string[]
+  rows: FundingRow[]
 }

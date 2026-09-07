@@ -94,6 +94,7 @@ def _load_funding(conn) -> int:
             json.dumps(f.get("other_investors") or [], ensure_ascii=False),
             f.get("source_url"), f.get("source_type"), f.get("cik"), f.get("accession_no"),
             1 if f.get("round_type_inferred") else 0,
+            f.get("amount_basis"), f.get("total_offering"), f.get("filed_date"),
         )
         for f in store.read_jsonl(paths.FUNDING)
         if f.get("company_id") in known
@@ -102,8 +103,9 @@ def _load_funding(conn) -> int:
         """INSERT OR REPLACE INTO funding_rounds
            (id, company_id, round_type, amount_raised, currency, announced_date,
             lead_investor, other_investors, source_url, source_type, cik,
-            accession_no, round_type_inferred)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            accession_no, round_type_inferred, amount_basis, total_offering,
+            filed_date)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         rows,
     )
     return len(rows)

@@ -21,11 +21,9 @@ interface Props {
   onClose: () => void
   watched: boolean
   onToggleWatch: () => void
-  onCompare: () => void
-  canCompare: boolean
 }
 
-export function CompanyPanel({ company, meta, onClose, watched, onToggleWatch, onCompare, canCompare }: Props) {
+export function CompanyPanel({ company, meta, onClose, watched, onToggleWatch }: Props) {
   const { detail, loading } = useDetail(company.id)
 
   const profileUrl =
@@ -62,9 +60,6 @@ export function CompanyPanel({ company, meta, onClose, watched, onToggleWatch, o
       <div className="panel__section" style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
         <button className={`btn${watched ? ' btn--primary' : ''}`} onClick={onToggleWatch}>
           {watched ? '★ Watching' : '☆ Watch'}
-        </button>
-        <button className="btn" onClick={onCompare} disabled={!canCompare}>
-          + Compare
         </button>
         {company.website && (
           <a className="btn" href={company.website} target="_blank" rel="noopener noreferrer">
