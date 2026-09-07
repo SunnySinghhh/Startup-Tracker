@@ -43,6 +43,20 @@ jobs:
           python -m tracker.cli build
           python -m tracker.cli export
 
+      # Vite copies web/public/data into dist. If export silently produced
+      # nothing, the site build still succeeds and deploys an empty dashboard —
+      # so fail here instead, where the cause is obvious.
+      - name: Verify data bundles exist
+        run: |
+          for f in web/public/data/index.json web/public/data/meta.json; do
+            if [ ! -s "$f" ]; then
+              echo "::error::$f is missing or empty — the export step produced no data."
+              exit 1
+            fi
+          done
+          echo "index.json: $(wc -c < web/public/data/index.json) bytes"
+          echo "detail files: $(find web/public/data/details -type f 2>/dev/null | wc -l)"
+
       - name: Install web dependencies
         working-directory: web
         run: npm ci
