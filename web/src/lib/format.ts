@@ -39,22 +39,40 @@ export function formatDate(iso?: string | null): string {
 /**
  * Relative age for recency cues, paired with the absolute date, never alone.
  *
- * Both sides are reduced to a *local* calendar day before subtracting. Parsing
- * the date as UTC midnight and comparing it to `Date.now()` reports "yesterday"
- * for something written moments ago whenever local time is behind UTC — which
- * made a just-completed pipeline run look a day stale.
+ * Dates and timestamps need different handling, and getting this wrong is
+ * visible on the page:
+ *
+ *   A bare "YYYY-MM-DD" is a *calendar day*. Comparing it as UTC midnight
+ *   against `Date.now()` reports "yesterday" for something written hours ago
+ *   whenever local time is behind UTC. So both sides reduce to a local day.
+ *
+ *   A full timestamp is an *instant*. The pipeline stamps it in UTC on a CI
+ *   runner, so reducing it to a local calendar day pushes it into the future
+ *   for viewers behind UTC — the header read "updated upcoming". Instants are
+ *   therefore compared as instants, and any small negative skew reads "today".
  */
-export function relativeDays(iso?: string | null): string {
-  if (!iso) return ''
-  const parts = iso.slice(0, 10).split('-').map(Number)
-  const [year, month, day] = parts
-  if (!year || !month || !day) return ''
-  const then = new Date(year, month - 1, day).getTime()
-  if (Number.isNaN(then)) return ''
+export function relativeDays(value?: string | null): string {
+  if (!value) return ''
+  const trimmed = value.trim()
+  const isCalendarDay = /^\d{4}-\d{2}-\d{2}$/.test(trimmed)
 
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
-  const days = Math.round((today - then) / 86_400_000)
+  let days: number
+  if (isCalendarDay) {
+    const [year, month, day] = trimmed.split('-').map(Number)
+    if (!year || !month || !day) return ''
+    const then = new Date(year, month - 1, day).getTime()
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+    days = Math.round((today - then) / 86_400_000)
+  } else {
+    const then = new Date(trimmed).getTime()
+    if (Number.isNaN(then)) return ''
+    const elapsed = Date.now() - then
+    // Clock and timezone skew of under a day is normal, not a future event.
+    if (elapsed < 0) return elapsed > -86_400_000 ? 'today' : 'upcoming'
+    days = Math.floor(elapsed / 86_400_000)
+  }
+
   if (days < 0) return 'upcoming'
   if (days === 0) return 'today'
   if (days === 1) return 'yesterday'

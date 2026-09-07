@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import math
 import sqlite3
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 # Relative weights. Renormalised over whichever components have data.
 WEIGHTS = {
@@ -193,7 +193,9 @@ def compute(conn: sqlite3.Connection, today: date | None = None) -> int:
     company_ids = [r["id"] for r in conn.execute("SELECT id FROM companies")]
     conn.execute("DELETE FROM momentum")
 
-    computed_at = datetime.now().isoformat(timespec="seconds")
+    # Aware UTC: this is generated on a CI runner and read by browsers in
+    # any timezone, so a naive local timestamp is genuinely ambiguous.
+    computed_at = datetime.now(UTC).isoformat(timespec="seconds")
     rows = []
 
     for cid in company_ids:

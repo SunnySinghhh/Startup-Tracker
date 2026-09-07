@@ -248,7 +248,7 @@ function Header({
           </span>
           {meta.generatedAt && (
             <span title={formatDate(meta.generatedAt)}>
-              updated {relativeDays(meta.generatedAt.slice(0, 10))}
+              updated {relativeDays(meta.generatedAt)}
             </span>
           )}
         </div>
