@@ -34,3 +34,33 @@ export function saveWatchlist(ids: Set<string>): void {
        won't persist. Failing loudly here would help nobody. */
   }
 }
+
+
+/* ---- Comparison selection -------------------------------------------------
+ *
+ * Kept in the same place and for the same reason as the watchlist: a selection
+ * you built up should survive a reload and only clear when you clear it.
+ * Order matters here — comparison columns read left to right — so it is stored
+ * as an array rather than a set.
+ */
+
+const COMPARE_KEY = 'startup-tracker:compare:v1'
+
+export function loadCompare(): string[] {
+  try {
+    const raw = localStorage.getItem(COMPARE_KEY)
+    if (!raw) return []
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+export function saveCompare(ids: string[]): void {
+  try {
+    localStorage.setItem(COMPARE_KEY, JSON.stringify(ids))
+  } catch {
+    /* Private mode or storage disabled — the session still works. */
+  }
+}

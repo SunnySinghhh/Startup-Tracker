@@ -11,7 +11,9 @@ import { useFundingMatrix, useIndex, useRecentSignals } from './data/useData'
 import type { Filters, Sort, SortKey } from './lib/filter'
 import { EMPTY_FILTERS, countActiveFilters, filterCompanies, sortCompanies } from './lib/filter'
 import { plain, relativeDays } from './lib/format'
-import { loadWatchlist, saveWatchlist } from './lib/watchlist'
+import type { Route, RouteTab } from './lib/router'
+import { parseHash, writeHash } from './lib/router'
+import { loadCompare, loadWatchlist, saveCompare, saveWatchlist } from './lib/watchlist'
 
 const TABS = [
   ['overview', 'Overview'],
@@ -21,7 +23,7 @@ const TABS = [
   ['about', 'About'],
 ] as const
 
-type Tab = (typeof TABS)[number][0]
+type Tab = RouteTab
 type Theme = 'system' | 'light' | 'dark'
 
 const THEME_KEY = 'startup-tracker:theme:v1'
@@ -42,15 +44,56 @@ export default function App() {
   const { companies, meta, loading, error } = useIndex()
   const { signals } = useRecentSignals()
 
-  const [tab, setTab] = useState<Tab>('overview')
+  // The URL is the source of truth for which tab is open and which company is
+  // showing, so a refresh lands where you were and a profile can be linked.
+  const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash))
+  const { tab, companyId: selectedId } = route
+
+  const navigate = useCallback((patch: Partial<Route>) => {
+    setRoute((prev) => ({ ...prev, ...patch }))
+  }, [])
+
+  const setTab = useCallback(
+    (next: Tab) => {
+      // Changing tab closes any open profile; leaving it open across a tab
+      // switch puts a company panel over an unrelated view.
+      navigate({ tab: next, companyId: null })
+    },
+    [navigate],
+  )
+
+  const setSelectedId = useCallback(
+    (id: string | null) => navigate({ companyId: id }),
+    [navigate],
+  )
+
+  // Reflect state into the URL. writeHash no-ops when the hash already
+  // matches, which is what stops this from looping against the listener below.
+  useEffect(() => {
+    writeHash(route, { replace: !window.location.hash })
+  }, [route])
+
+  // Back/forward buttons.
+  useEffect(() => {
+    const onHash = () => {
+      const next = parseHash(window.location.hash)
+      setRoute((prev) =>
+        prev.tab === next.tab && prev.companyId === next.companyId ? prev : next,
+      )
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
   const { matrix, loading: matrixLoading } = useFundingMatrix(tab === 'funding')
 
   const [filters, setFilters] = useState<Filters>(() => ({ ...EMPTY_FILTERS }))
   // Momentum is the default discovery sort: the product's question is which
   // companies are moving, not which come first alphabetically.
   const [sort, setSort] = useState<Sort>({ key: 'momentum', dir: 'desc' })
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [compareIds, setCompareIds] = useState<string[]>([])
+  // Persisted so a comparison you assembled survives a reload and only clears
+  // when you clear it.
+  const [compareIds, setCompareIds] = useState<string[]>(() => loadCompare())
   const [watchlist, setWatchlist] = useState<Set<string>>(() => loadWatchlist())
   const [theme, setTheme] = useState<Theme>(() => {
     try {
@@ -82,9 +125,23 @@ export default function App() {
   }, [])
 
   const toggleCompare = useCallback((id: string) => {
-    setCompareIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= MAX_COMPARE ? prev : [...prev, id],
-    )
+    setCompareIds((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : prev.length >= MAX_COMPARE
+          ? prev
+          : [...prev, id]
+      saveCompare(next)
+      return next
+    })
+  }, [])
+
+  const removeFromCompare = useCallback((id: string) => {
+    setCompareIds((prev) => {
+      const next = prev.filter((x) => x !== id)
+      saveCompare(next)
+      return next
+    })
   }, [])
 
   const onSortChange = useCallback((key: SortKey) => {
@@ -102,12 +159,23 @@ export default function App() {
   const visible = useMemo(() => sortCompanies(filtered, sort), [filtered, sort])
 
   const byId = useMemo(() => new Map(companies.map((c) => [c.id, c])), [companies])
+
+  // A persisted selection can outlive the company it points at — the tracked
+  // universe changes as cohorts age out. Drop ids that no longer resolve, once
+  // the index has actually loaded, so storage doesn't accumulate dead entries.
+  useEffect(() => {
+    if (companies.length === 0) return
+    setCompareIds((prev) => {
+      const live = prev.filter((id) => byId.has(id))
+      if (live.length === prev.length) return prev
+      saveCompare(live)
+      return live
+    })
+  }, [companies.length, byId])
   const selected = selectedId ? (byId.get(selectedId) ?? null) : null
   const comparing = compareIds.map((id) => byId.get(id)).filter((c): c is Company => Boolean(c))
 
-  const openCompany = useCallback((id: string) => {
-    setSelectedId(id)
-  }, [])
+  const openCompany = useCallback((id: string) => setSelectedId(id), [setSelectedId])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -122,7 +190,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [setSelectedId, setTab])
 
   const header = (
     <Header
@@ -262,7 +330,7 @@ export default function App() {
               </header>
               <CompanyComparison
                 companies={comparing}
-                onRemove={(id) => setCompareIds((prev) => prev.filter((x) => x !== id))}
+                onRemove={removeFromCompare}
                 onSelect={openCompany}
               />
             </div>
