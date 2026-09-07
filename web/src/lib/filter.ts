@@ -9,6 +9,8 @@ export interface Filters {
   stages: Set<string>
   statuses: Set<string>
   batch: string
+  country: string
+  remoteOnly: boolean
   origin: 'all' | 'yc' | 'custom'
   hiringOnly: boolean
   watchlistOnly: boolean
@@ -21,6 +23,8 @@ export const EMPTY_FILTERS: Filters = {
   stages: new Set(),
   statuses: new Set(),
   batch: '',
+  country: '',
+  remoteOnly: false,
   origin: 'all',
   hiringOnly: false,
   watchlistOnly: false,
@@ -50,6 +54,8 @@ export function filterCompanies(
     if (filters.watchlistOnly && !watchlist.has(c.id)) return false
     if (filters.withSignalsOnly && !c.signalCount) return false
     if (filters.batch && c.batch !== filters.batch) return false
+    if (filters.country && c.country !== filters.country) return false
+    if (filters.remoteOnly && !c.remote) return false
     if (filters.sectors.size && !(c.sector && filters.sectors.has(c.sector))) return false
     if (filters.stages.size && !(c.stage && filters.stages.has(c.stage))) return false
     if (filters.statuses.size && !(c.status && filters.statuses.has(c.status))) return false
@@ -64,6 +70,8 @@ export function filterCompanies(
         c.sector ?? '',
         c.subSector ?? '',
         c.location ?? '',
+        c.country ?? '',
+        c.city ?? '',
         c.batch ?? '',
         ...(c.tags ?? []),
       ]
@@ -122,6 +130,8 @@ export function countActiveFilters(f: Filters): number {
     f.stages.size +
     f.statuses.size +
     (f.batch ? 1 : 0) +
+    (f.country ? 1 : 0) +
+    (f.remoteOnly ? 1 : 0) +
     (f.origin !== 'all' ? 1 : 0) +
     (f.hiringOnly ? 1 : 0) +
     (f.watchlistOnly ? 1 : 0) +

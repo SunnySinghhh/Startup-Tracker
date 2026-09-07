@@ -62,7 +62,8 @@ def _index_rows(conn) -> list[dict]:
         """
         SELECT
             c.id, c.name, c.one_liner, c.website, c.sector, c.sub_sector, c.tags,
-            c.hq_location, c.founded_date, c.status, c.stage, c.batch, c.logo_url,
+            c.hq_location, c.city, c.country, c.remote,
+            c.founded_date, c.status, c.stage, c.batch, c.logo_url,
             c.profile_url, c.origin, c.top_company, c.notes,
             m.score, m.score_available, m.coverage, m.confidence,
             m.headcount_growth_90d, m.headcount_delta_90d,
@@ -120,6 +121,9 @@ def _index_rows(conn) -> list[dict]:
                 "subSector": r["sub_sector"],
                 "tags": _jloads(r["tags"], []),
                 "location": r["hq_location"],
+                "city": r["city"],
+                "country": r["country"],
+                "remote": bool(r["remote"]),
                 "founded": r["founded_date"],
                 "status": r["status"],
                 "stage": r["stage"],
@@ -151,6 +155,11 @@ def _meta(conn, index: list[dict]) -> dict:
     def facet(key):
         return sorted({c[key] for c in index if c.get(key)})
 
+    # Countries are ordered by company count, not alphabetically: a dropdown of
+    # 77 entries is only useful if the ones people actually want are near the
+    # top. The count is shown alongside each option.
+    country_counts = Counter(c["country"] for c in index if c.get("country"))
+
     history_days = 0
     if span and span["lo"] and span["hi"]:
         history_days = (date.fromisoformat(span["hi"]) - date.fromisoformat(span["lo"])).days
@@ -179,7 +188,11 @@ def _meta(conn, index: list[dict]) -> dict:
             "stages": facet("stage"),
             "batches": sorted({c["batch"] for c in index if c.get("batch")}),
             "topTags": [t for t, _ in tag_counts.most_common(60)],
+            "countries": [
+                {"country": name, "companies": n} for name, n in country_counts.most_common()
+            ],
         },
+        "remoteCount": sum(1 for c in index if c.get("remote")),
         "momentumWeights": WEIGHTS,
         "ycProfilePrefix": _YC_PROFILE_PREFIX,
     }
@@ -291,7 +304,19 @@ def _funding_matrix(conn) -> list[dict]:
 
 
 def _details(conn, index: list[dict]) -> int:
-    """Write a detail file per company that has something worth fetching."""
+    """Write a detail file per company that has something worth fetching.
+
+    "Worth fetching" deliberately excludes a company whose only history is the
+    same headcount repeated. Once the daily job has run twice, every company
+    has two observations, so a naive ">= 2 points" test writes a file for the
+    entire universe — 4,540 of them, nearly all a flat line. That made both the
+    local build and the Pages upload I/O-bound for no benefit: the panel
+    already shows current headcount from the index and explains that a trend
+    needs more history.
+
+    A file is written once there is an actual signal, a filing, real movement
+    in headcount, or any GitHub data.
+    """
     detail_dir = paths.WEB_DATA / "details"
     detail_dir.mkdir(parents=True, exist_ok=True)
     for stale in detail_dir.glob("*.json"):
@@ -300,23 +325,24 @@ def _details(conn, index: list[dict]) -> int:
     written = 0
     for company in index:
         cid = company["id"]
-        # A company earns a detail file if it has anything worth fetching.
-        # Funding was originally omitted from this test, which silently hid
-        # every Form D filing we had collected.
-        has_detail = (
-            company.get("signalCount")
-            or company.get("fundingCount")
-            or (company.get("historyPoints") or 0) >= 2
-        )
-        if not has_detail:
-            continue
-
         history = conn.execute(
             """SELECT snapshot_date, headcount, is_hiring, github_stars, github_contributors
                FROM metric_snapshots WHERE company_id = ?
                ORDER BY snapshot_date DESC LIMIT ?""",
             (cid, _MAX_HISTORY_POINTS),
         ).fetchall()
+
+        # Movement, not merely presence, is what makes a trend worth charting.
+        headcounts = {h["headcount"] for h in history if h["headcount"] is not None}
+        has_github = any(h["github_stars"] is not None for h in history)
+
+        if not (
+            company.get("signalCount")
+            or company.get("fundingCount")
+            or len(headcounts) > 1
+            or has_github
+        ):
+            continue
 
         signals = conn.execute(
             """SELECT id, signal_type, signal_date, title, description, source_url, source_type

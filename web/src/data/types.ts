@@ -35,6 +35,9 @@ export interface Company {
   subSector?: string
   tags?: string[]
   location?: string
+  city?: string
+  country?: string
+  remote?: boolean
   founded?: string
   status?: string
   stage?: string
@@ -76,10 +79,17 @@ export interface Meta {
     stages: string[]
     batches: string[]
     topTags: string[]
+    countries: CountryCount[]
   }
+  remoteCount?: number
   momentumWeights: Record<string, number>
   ycProfilePrefix: string
   sectorBreakdown: SectorCount[]
+}
+
+export interface CountryCount {
+  country: string
+  companies: number
 }
 
 export interface SectorCount {

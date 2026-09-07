@@ -23,6 +23,10 @@ CREATE TABLE IF NOT EXISTS companies (
     sub_sector          TEXT,
     tags                TEXT,          -- JSON array
     hq_location         TEXT,
+    city                TEXT,
+    country             TEXT,
+    countries           TEXT,          -- JSON array
+    remote              INTEGER DEFAULT 0,
     regions             TEXT,          -- JSON array
     founded_date        TEXT,          -- ISO date
     status              TEXT,          -- Active / Acquired / Public / Inactive
@@ -39,6 +43,7 @@ CREATE TABLE IF NOT EXISTS companies (
 CREATE INDEX IF NOT EXISTS idx_companies_sector ON companies(sector);
 CREATE INDEX IF NOT EXISTS idx_companies_status ON companies(status);
 CREATE INDEX IF NOT EXISTS idx_companies_batch  ON companies(batch);
+CREATE INDEX IF NOT EXISTS idx_companies_country ON companies(country);
 
 -- Time series. One row per company per observation day.
 CREATE TABLE IF NOT EXISTS metric_snapshots (

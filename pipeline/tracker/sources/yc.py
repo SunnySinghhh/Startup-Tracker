@@ -15,7 +15,7 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from typing import Any
 
-from .. import http
+from .. import http, location
 
 ALL_COMPANIES_URL = "https://yc-oss.github.io/api/companies/all.json"
 
@@ -52,6 +52,17 @@ def _sub_sector(raw: dict[str, Any]) -> str | None:
     return value.split("->")[-1].strip() or None
 
 
+def _location_fields(raw_location: str | None) -> dict[str, Any]:
+    """Filterable location fields parsed out of YC's free-text string."""
+    parsed = location.parse(raw_location)
+    return {
+        "city": parsed["city"],
+        "country": parsed["country"],
+        "countries": parsed["countries"],
+        "remote": parsed["remote"],
+    }
+
+
 def normalise_company(raw: dict[str, Any]) -> dict[str, Any]:
     return {
         "id": f"yc:{raw['slug']}",
@@ -64,6 +75,7 @@ def normalise_company(raw: dict[str, Any]) -> dict[str, Any]:
         "tags": raw.get("tags") or [],
         "hq_location": raw.get("all_locations") or None,
         "regions": raw.get("regions") or [],
+        **_location_fields(raw.get("all_locations")),
         "founded_date": _founded_date(raw),
         "status": raw.get("status") or "Active",
         "stage": raw.get("stage") or None,

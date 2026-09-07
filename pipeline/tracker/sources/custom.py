@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from .. import store
+from .. import location, store
 from ..paths import CUSTOM_COMPANIES
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
@@ -22,6 +22,16 @@ _SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 def slugify(name: str) -> str:
     return _SLUG_RE.sub("-", name.lower()).strip("-")
+
+
+def _location_fields(raw_location: str | None) -> dict[str, Any]:
+    parsed = location.parse(raw_location)
+    return {
+        "city": parsed["city"],
+        "country": parsed["country"],
+        "countries": parsed["countries"],
+        "remote": parsed["remote"],
+    }
 
 
 def normalise_company(raw: dict[str, Any]) -> dict[str, Any]:
@@ -40,6 +50,7 @@ def normalise_company(raw: dict[str, Any]) -> dict[str, Any]:
         "tags": raw.get("tags") or [],
         "hq_location": raw.get("hq_location") or None,
         "regions": raw.get("regions") or [],
+        **_location_fields(raw.get("hq_location")),
         "founded_date": raw.get("founded_date") or None,
         "status": raw.get("status") or "Active",
         "stage": raw.get("stage") or None,

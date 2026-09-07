@@ -81,6 +81,37 @@ export function FilterRail({ meta, filters, onChange, watchlistSize }: Props) {
           />
           Has recent signals
         </label>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={filters.remoteOnly}
+            onChange={(e) => onChange({ ...filters, remoteOnly: e.target.checked })}
+          />
+          Remote
+          <span style={{ marginLeft: 'auto', color: 'var(--text-faint)', fontSize: 'var(--text-2xs)' }}>
+            {plain(meta.remoteCount ?? 0)}
+          </span>
+        </label>
+      </div>
+
+      <div className="rail__group">
+        <div className="rail__label">
+          Location
+          {filters.country && <span className="rail__count">1</span>}
+        </div>
+        <select
+          className="select"
+          value={filters.country}
+          onChange={(e) => onChange({ ...filters, country: e.target.value })}
+          aria-label="Filter by country"
+        >
+          <option value="">All countries</option>
+          {(meta.facets.countries ?? []).map(({ country, companies }) => (
+            <option key={country} value={country}>
+              {country} ({plain(companies)})
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="rail__group">

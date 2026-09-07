@@ -17,7 +17,8 @@ log = logging.getLogger(__name__)
 
 _COMPANY_COLUMNS = (
     "id", "name", "one_liner", "long_description", "website", "sector", "sub_sector",
-    "tags", "hq_location", "regions", "founded_date", "status", "stage", "batch",
+    "tags", "hq_location", "city", "country", "countries", "remote",
+    "regions", "founded_date", "status", "stage", "batch",
     "logo_url", "profile_url", "origin", "top_company", "notes", "first_seen", "last_seen",
 )
 
@@ -29,8 +30,10 @@ def _load_companies(conn) -> int:
         row = []
         for col in _COMPANY_COLUMNS:
             value = c.get(col)
-            if col in ("tags", "regions"):
+            if col in ("tags", "regions", "countries"):
                 value = json.dumps(value or [], ensure_ascii=False)
+            if col == "remote":
+                value = 1 if value else 0
             row.append(value)
         rows.append(tuple(row))
 

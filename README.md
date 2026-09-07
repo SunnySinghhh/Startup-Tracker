@@ -11,6 +11,9 @@ day, so the history it reasons over accumulates on its own.
 
 **Live dashboard:** <https://sunnysinghhh.github.io/Startup-Tracker/>
 
+Currently tracking 4,542 companies across 77 countries, with SEC funding
+histories for 484 of them ($45.1B in observed capital).
+
 ---
 
 ## Why this exists
@@ -81,7 +84,7 @@ Four tabs, one job each:
 | Tab | What it does |
 |---|---|
 | **Overview** | What the tracker knows right now: counts, top momentum, latest signals, sector mix |
-| **Companies** | The full directory — filter by sector, stage, status, batch; sort by any column |
+| **Companies** | The full directory — filter by sector, stage, status, batch, country and remote; sort by any column |
 | **Funding** | Progression matrix: companies down the side, inferred stages across, dollars raised in the cells |
 | **About** | How everything works, and what the data can't tell you |
 
