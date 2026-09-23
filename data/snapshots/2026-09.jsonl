@@ -15,6 +15,7 @@
 {"company_id": "custom:anthropic", "github_forks": 89298, "github_repos": 100, "github_stars": 647717, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "custom:anthropic", "github_forks": 89511, "github_repos": 100, "github_stars": 649191, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "custom:anthropic", "github_forks": 89633, "github_repos": 100, "github_stars": 650303, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "custom:anthropic", "github_forks": 89833, "github_repos": 100, "github_stars": 651795, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 15497, "github_repos": 100, "github_stars": 37293, "snapshot_date": "2026-09-06", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 15500, "github_repos": 100, "github_stars": 37295, "snapshot_date": "2026-09-07", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 15506, "github_repos": 100, "github_stars": 37301, "snapshot_date": "2026-09-08", "source": "github"}
@@ -32,6 +33,7 @@
 {"company_id": "custom:databricks", "github_forks": 15566, "github_repos": 100, "github_stars": 37442, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 15569, "github_repos": 100, "github_stars": 37448, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 15570, "github_repos": 100, "github_stars": 37458, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "custom:databricks", "github_forks": 15576, "github_repos": 100, "github_stars": 37460, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 1947, "github_repos": 100, "github_stars": 10275, "snapshot_date": "2026-09-06", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 1947, "github_repos": 100, "github_stars": 10278, "snapshot_date": "2026-09-07", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 1949, "github_repos": 100, "github_stars": 10279, "snapshot_date": "2026-09-08", "source": "github"}
@@ -49,6 +51,7 @@
 {"company_id": "custom:figma", "github_forks": 1961, "github_repos": 100, "github_stars": 10351, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 1962, "github_repos": 100, "github_stars": 10358, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 1964, "github_repos": 100, "github_stars": 10363, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "custom:figma", "github_forks": 1964, "github_repos": 100, "github_stars": 10371, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 468, "github_repos": 22, "github_stars": 2131, "snapshot_date": "2026-09-06", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 468, "github_repos": 22, "github_stars": 2133, "snapshot_date": "2026-09-07", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 469, "github_repos": 22, "github_stars": 2140, "snapshot_date": "2026-09-08", "source": "github"}
@@ -64,6 +67,7 @@
 {"company_id": "custom:linear", "github_forks": 475, "github_repos": 22, "github_stars": 2164, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 475, "github_repos": 22, "github_stars": 2168, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 475, "github_repos": 22, "github_stars": 2169, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "custom:linear", "github_forks": 475, "github_repos": 22, "github_stars": 2172, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 79973, "github_repos": 100, "github_stars": 507670, "snapshot_date": "2026-09-06", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 80324, "github_repos": 100, "github_stars": 508191, "snapshot_date": "2026-09-07", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 80333, "github_repos": 100, "github_stars": 507560, "snapshot_date": "2026-09-08", "source": "github"}
@@ -81,6 +85,7 @@
 {"company_id": "custom:vercel", "github_forks": 81806, "github_repos": 100, "github_stars": 517660, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 81909, "github_repos": 100, "github_stars": 517701, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 82226, "github_repos": 100, "github_stars": 518507, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "custom:vercel", "github_forks": 82242, "github_repos": 100, "github_stars": 518599, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "yc:10-by-10", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:1000memories", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:100x", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -235,6 +240,7 @@
 {"company_id": "yc:airbyte", "github_forks": 6134, "github_repos": 64, "github_stars": 23777, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "yc:airbyte", "github_forks": 6134, "github_repos": 64, "github_stars": 23788, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "yc:airbyte", "github_forks": 6140, "github_repos": 64, "github_stars": 23800, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "yc:airbyte", "github_forks": 6142, "github_repos": 64, "github_stars": 23806, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "yc:aircaps", "headcount": 5, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:airfordable", "headcount": 7, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:airgoods", "headcount": 10, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -278,6 +284,7 @@
 {"company_id": "yc:alchemize", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:alchemy", "headcount": 25, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:aldara", "headcount": 10, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:alder", "headcount": 2, "is_hiring": 1, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:alemhealth", "headcount": 25, "is_hiring": 1, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:aleph", "headcount": 30, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:aleph-lab", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -492,6 +499,7 @@
 {"company_id": "yc:artifact", "headcount": 10, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:artifact-2", "headcount": 4, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:artificial-societies", "headcount": 12, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:artificial-societies", "headcount": 18, "is_hiring": 1, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:artillery", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:artisan", "headcount": 50, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:artos", "headcount": 7, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -515,6 +523,7 @@
 {"company_id": "yc:aside", "headcount": 5, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:aside", "headcount": 8, "is_hiring": 1, "snapshot_date": "2026-09-16", "source": "yc"}
 {"company_id": "yc:asim", "headcount": 9, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:asim-group", "headcount": 4, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:asimov", "headcount": 3, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:askdata", "headcount": 17, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:askmyclass-now-soundkins", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
@@ -1518,6 +1527,7 @@
 {"company_id": "yc:cyberdesk", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:cyberfend", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:cyble", "headcount": 197, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:cyclon", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:cymmetria", "headcount": 11, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:cypher", "headcount": 12, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:cytera-cellworks", "headcount": 26, "is_hiring": 1, "snapshot_date": "2026-09-06", "source": "yc"}
@@ -1574,6 +1584,7 @@
 {"company_id": "yc:daybreak-health", "headcount": 20, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:dayflow", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:dayjob", "headcount": 5, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:dayjob", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:dayra", "headcount": 10, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:deako", "headcount": 11, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:dealls-jobs-and-mentoring", "headcount": 127, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -1746,6 +1757,7 @@
 {"company_id": "yc:draft", "headcount": 1, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:draft-the-record", "headcount": 5, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:draftaid", "headcount": 14, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:draftaid", "headcount": 14, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:draftbit", "headcount": 10, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:drafted", "headcount": 9, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:draftwise", "headcount": 50, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -2051,6 +2063,7 @@
 {"company_id": "yc:fern-bot", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:fernstone", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:fernstone", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-22", "source": "yc"}
+{"company_id": "yc:fernstone", "headcount": 5, "is_hiring": 1, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:feroot-security", "headcount": 24, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:ferveret-inc", "headcount": 16, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:fetch", "headcount": 24, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
@@ -2903,6 +2916,7 @@
 {"company_id": "yc:isabl", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:isengard-industries-inc", "headcount": 30, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:isono-health", "headcount": 9, "is_hiring": 1, "snapshot_date": "2026-09-06", "source": "yc"}
+{"company_id": "yc:isoquant", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:issen", "headcount": 1, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:item", "headcount": 6, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:ivella", "headcount": 8, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -3515,6 +3529,7 @@
 {"company_id": "yc:mason", "headcount": 65, "is_hiring": 1, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:mass-magnetics", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:massdriver", "headcount": 4, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:masterpiece", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:mastra", "headcount": 30, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:matagora", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:matano", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -3590,6 +3605,7 @@
 {"company_id": "yc:mentra", "headcount": 12, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:mentum", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:menza", "headcount": 3, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:menza", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:mercator", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:mercoa", "headcount": 2, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:mercoa", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-13", "source": "yc"}
@@ -3604,6 +3620,7 @@
 {"company_id": "yc:mesh", "headcount": 50, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:mesh-2", "headcount": 3, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:mesmer", "headcount": 7, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:mesmer", "headcount": 7, "is_hiring": 1, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:meson", "headcount": 10, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:messageparty", "headcount": 1, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:meta", "headcount": 11, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
@@ -4632,6 +4649,7 @@
 {"company_id": "yc:posthog", "github_forks": 5880, "github_repos": 100, "github_stars": 45771, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "yc:posthog", "github_forks": 5887, "github_repos": 100, "github_stars": 45780, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "yc:posthog", "github_forks": 5894, "github_repos": 100, "github_stars": 45800, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "yc:posthog", "github_forks": 5892, "github_repos": 100, "github_stars": 45807, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "yc:postscript", "headcount": 180, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:posturehealth-inc", "headcount": null, "is_hiring": 1, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:posturehealth-inc", "headcount": null, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc"}
@@ -4684,6 +4702,7 @@
 {"company_id": "yc:princeps", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:princeps", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-08", "source": "yc"}
 {"company_id": "yc:prism", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:prism", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:prism-labs", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:prized", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:probably-genetic", "headcount": 17, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -5348,6 +5367,7 @@
 {"company_id": "yc:shepherd", "headcount": 60, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:shepherd-2", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:shepherd-robotics", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-10", "source": "yc"}
+{"company_id": "yc:shepherd-robotics", "headcount": 4, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:sherloq", "headcount": 6, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:sherpa", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:shiboleth", "headcount": 5, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -5773,6 +5793,7 @@
 {"company_id": "yc:sully-ai", "headcount": 49, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:sunfarmer", "headcount": 15, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:sunflower", "headcount": 15, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:sunflower", "headcount": 15, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:sunfolding", "headcount": 44, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:sunlight", "headcount": 6, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:sunpia", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -5796,6 +5817,7 @@
 {"company_id": "yc:supabase", "github_forks": 22557, "github_repos": 100, "github_stars": 167945, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-09-20", "source": "github"}
 {"company_id": "yc:supabase", "github_forks": 22652, "github_repos": 100, "github_stars": 168059, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-09-21", "source": "github"}
 {"company_id": "yc:supabase", "github_forks": 22665, "github_repos": 100, "github_stars": 168179, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-09-22", "source": "github"}
+{"company_id": "yc:supabase", "github_forks": 22694, "github_repos": 100, "github_stars": 168297, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "github"}
 {"company_id": "yc:supadock", "headcount": 1, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:super", "headcount": 1037, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
 {"company_id": "yc:superagent", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
@@ -6035,6 +6057,7 @@
 {"company_id": "yc:the-robot-learning-company", "headcount": 1, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:the-subvocal-company", "headcount": 3, "is_hiring": 1, "snapshot_date": "2026-09-06", "source": "yc-history"}
 {"company_id": "yc:the-subvocal-company", "headcount": 3, "is_hiring": 1, "snapshot_date": "2026-09-07", "source": "yc-history"}
+{"company_id": "yc:the-subvocal-company", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-09-23", "source": "yc"}
 {"company_id": "yc:the-synthesis-company", "headcount": 1, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:the-third-place", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-09-07", "source": "yc-history"}
 {"company_id": "yc:the-ticket-fairy", "headcount": 30, "is_hiring": 0, "snapshot_date": "2026-09-06", "source": "yc"}
