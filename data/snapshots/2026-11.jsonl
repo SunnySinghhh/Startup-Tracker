@@ -18,6 +18,7 @@
 {"company_id": "custom:anthropic", "github_forks": 98993, "github_repos": 100, "github_stars": 726123, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "custom:anthropic", "github_forks": 99129, "github_repos": 100, "github_stars": 726930, "snapshot_date": "2026-11-20", "source": "github"}
 {"company_id": "custom:anthropic", "github_forks": 99209, "github_repos": 100, "github_stars": 727737, "snapshot_date": "2026-11-21", "source": "github"}
+{"company_id": "custom:anthropic", "github_forks": 99362, "github_repos": 100, "github_stars": 728735, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 16189, "github_repos": 100, "github_stars": 38581, "snapshot_date": "2026-11-01", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 16195, "github_repos": 100, "github_stars": 38586, "snapshot_date": "2026-11-02", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 16204, "github_repos": 100, "github_stars": 38593, "snapshot_date": "2026-11-03", "source": "github"}
@@ -38,6 +39,7 @@
 {"company_id": "custom:databricks", "github_forks": 16007, "github_repos": 100, "github_stars": 38192, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 16011, "github_repos": 100, "github_stars": 38177, "snapshot_date": "2026-11-20", "source": "github"}
 {"company_id": "custom:databricks", "github_forks": 16013, "github_repos": 100, "github_stars": 38180, "snapshot_date": "2026-11-21", "source": "github"}
+{"company_id": "custom:databricks", "github_forks": 16020, "github_repos": 100, "github_stars": 38182, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 2018, "github_repos": 100, "github_stars": 10549, "snapshot_date": "2026-11-01", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 2018, "github_repos": 100, "github_stars": 10555, "snapshot_date": "2026-11-02", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 2019, "github_repos": 100, "github_stars": 10556, "snapshot_date": "2026-11-03", "source": "github"}
@@ -58,6 +60,7 @@
 {"company_id": "custom:figma", "github_forks": 2034, "github_repos": 100, "github_stars": 10655, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 2034, "github_repos": 100, "github_stars": 10657, "snapshot_date": "2026-11-20", "source": "github"}
 {"company_id": "custom:figma", "github_forks": 2035, "github_repos": 100, "github_stars": 10664, "snapshot_date": "2026-11-21", "source": "github"}
+{"company_id": "custom:figma", "github_forks": 2035, "github_repos": 100, "github_stars": 10672, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 502, "github_repos": 24, "github_stars": 2225, "snapshot_date": "2026-11-01", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 501, "github_repos": 24, "github_stars": 2227, "snapshot_date": "2026-11-02", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 503, "github_repos": 24, "github_stars": 2228, "snapshot_date": "2026-11-03", "source": "github"}
@@ -77,6 +80,7 @@
 {"company_id": "custom:linear", "github_forks": 503, "github_repos": 25, "github_stars": 2263, "snapshot_date": "2026-11-17", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 503, "github_repos": 26, "github_stars": 2264, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "custom:linear", "github_forks": 502, "github_repos": 26, "github_stars": 2267, "snapshot_date": "2026-11-20", "source": "github"}
+{"company_id": "custom:linear", "github_forks": 503, "github_repos": 26, "github_stars": 2270, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 82754, "github_repos": 100, "github_stars": 512493, "snapshot_date": "2026-11-01", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 83071, "github_repos": 100, "github_stars": 519124, "snapshot_date": "2026-11-02", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 83162, "github_repos": 100, "github_stars": 519031, "snapshot_date": "2026-11-03", "source": "github"}
@@ -97,6 +101,7 @@
 {"company_id": "custom:vercel", "github_forks": 83805, "github_repos": 100, "github_stars": 523686, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 83841, "github_repos": 100, "github_stars": 524424, "snapshot_date": "2026-11-20", "source": "github"}
 {"company_id": "custom:vercel", "github_forks": 83727, "github_repos": 100, "github_stars": 524504, "snapshot_date": "2026-11-21", "source": "github"}
+{"company_id": "custom:vercel", "github_forks": 83759, "github_repos": 100, "github_stars": 524527, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "yc:10x", "headcount": 4, "is_hiring": 1, "snapshot_date": "2026-11-16", "source": "yc"}
 {"company_id": "yc:1stcollab", "headcount": 11, "is_hiring": 0, "snapshot_date": "2026-11-20", "source": "yc"}
 {"company_id": "yc:a1base", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-11-10", "source": "yc"}
@@ -126,6 +131,7 @@
 {"company_id": "yc:airbyte", "github_forks": 6351, "github_repos": 69, "github_stars": 24121, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "yc:airbyte", "github_forks": 6353, "github_repos": 69, "github_stars": 24124, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-11-20", "source": "github"}
 {"company_id": "yc:airbyte", "github_forks": 6351, "github_repos": 69, "github_stars": 24128, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-11-21", "source": "github"}
+{"company_id": "yc:airbyte", "github_forks": 6352, "github_repos": 69, "github_stars": 24130, "headcount": 90, "is_hiring": 0, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "yc:aircaps-ai", "headcount": 5, "is_hiring": 1, "snapshot_date": "2026-11-05", "source": "yc"}
 {"company_id": "yc:aircaps-ai", "headcount": 5, "is_hiring": 0, "snapshot_date": "2026-11-20", "source": "yc"}
 {"company_id": "yc:akiflow", "headcount": 18, "is_hiring": 0, "snapshot_date": "2026-11-14", "source": "yc"}
@@ -389,6 +395,7 @@
 {"company_id": "yc:posthog", "github_forks": 6358, "github_repos": 100, "github_stars": 47439, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "yc:posthog", "github_forks": 6368, "github_repos": 100, "github_stars": 47478, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-11-20", "source": "github"}
 {"company_id": "yc:posthog", "github_forks": 6377, "github_repos": 100, "github_stars": 47496, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-11-21", "source": "github"}
+{"company_id": "yc:posthog", "github_forks": 6383, "github_repos": 100, "github_stars": 47527, "headcount": 150, "is_hiring": 1, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "yc:postlet", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-11-19", "source": "yc"}
 {"company_id": "yc:preload", "headcount": 3, "is_hiring": 1, "snapshot_date": "2026-11-10", "source": "yc"}
 {"company_id": "yc:prized", "headcount": 3, "is_hiring": 0, "snapshot_date": "2026-11-04", "source": "yc"}
@@ -460,6 +467,7 @@
 {"company_id": "yc:supabase", "github_forks": 23871, "github_repos": 100, "github_stars": 174895, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-11-19", "source": "github"}
 {"company_id": "yc:supabase", "github_forks": 23884, "github_repos": 100, "github_stars": 174928, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-11-20", "source": "github"}
 {"company_id": "yc:supabase", "github_forks": 23884, "github_repos": 100, "github_stars": 174972, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-11-21", "source": "github"}
+{"company_id": "yc:supabase", "github_forks": 23902, "github_repos": 100, "github_stars": 175079, "headcount": 120, "is_hiring": 0, "snapshot_date": "2026-11-22", "source": "github"}
 {"company_id": "yc:surebright", "headcount": 35, "is_hiring": 1, "snapshot_date": "2026-11-17", "source": "yc"}
 {"company_id": "yc:surface-labs", "headcount": 10, "is_hiring": 1, "snapshot_date": "2026-11-05", "source": "yc"}
 {"company_id": "yc:synapse-semiconductor", "headcount": 2, "is_hiring": 0, "snapshot_date": "2026-11-19", "source": "yc"}
